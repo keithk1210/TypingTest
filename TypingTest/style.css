@@ -1,0 +1,73 @@
+/*GENERAL*/
+
+:root {
+    --correct-color: green;
+    --incorrect-color: red;
+    --default-color: black;
+    --cursor-color: gray;
+}
+
+.main-content {
+    margin: auto;
+    width: 60vw;
+}
+.header h1 {
+    text-align: center;
+}
+/*INPUT*/
+.input {
+    position: relative;
+    border: 1px solid black;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 0;
+}
+.row {
+    border-bottom: 1px solid black;
+    height: 10%;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    z-index: 1;
+    position: relative;
+}
+.row-p {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.character {
+    width: 10%;
+    height: 100%;
+    vertical-align: middle;
+    text-align: center;
+
+}
+.row-p .character:last-of-type {
+    border-right: 0;
+}
+.input .row:last-of-type {
+    border-bottom: 0;
+}
+.row-cell {
+    width: 10%;
+    height: 100%;
+
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+.cursor {
+    opacity: .5;
+    position: absolute;
+    z-index: 100;
+    background-color: var(--cursor-color);
+    height: 100px;
+    width: 100px;
+    transition: transform 0.3s;
+}
