@@ -23,7 +23,7 @@ currentCell = new Coord(0,0);
 
 
 window.addEventListener("keydown",function(event) { 
-    if (event.key != " " && event.key != "Backspace" && event.key != "Shift") {
+    if (event.key != " " && event.key != "Backspace" && event.key != "Shift" && cells[currentCell.y][currentCell.x].innerText != "") {
         keystrokes.push(event.key);
     } else if (event.key == "Backspace") {
         if (keystrokes.length > 0) {
@@ -31,32 +31,51 @@ window.addEventListener("keydown",function(event) {
         }
     }
     console.log(keystrokes);
-    updateWordsPerMinute(event);
+    changeLetterColor(event);
+    if (event.key == " " && keystrokes.length == words[wordIndex].length) {
+        updateWordsPerMinute(event);
+    }
     updateCurrentWord(event);
-    checkIfCorrectKey(event);
-    console.log(words[wordIndex]);
-
-    //console.log("length " + words[wordIndex].length);
+    clearKeystrokes(event);
+    moveCursor(event);
 });
 
 function updateCurrentWord(event) {
-    if (event.key == "Backspace" && cells[currentCell.y][cells.currentCell.x-1].innerText == "") {
+    if (event.key == "Backspace" && cells[currentCell.y][currentCell.x-1].innerText == "") {
         wordIndex--;
+        keystrokes = [];
+        console.log("wordindex " + wordIndex);
     } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
         wordIndex++;
+        keystrokes = [];
+        console.log("wordindex " + wordIndex);
     }
 }
 
-function checkIfCorrectKey(event) {
+function clearKeystrokes(event) {
+    if (event.key == "Backspace" && cells[currentCell.y][currentCell.x-1].innerText == "") {
+        keystrokes = [];
+    } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
+        keystrokes = [];
+    }
+}
+
+function changeLetterColor(event) {
     //console.log("!" + cells[currentCell.y][currentCell.x].children[0].innerText + "!");
     if (event.key == "Backspace") {
-        goBackOne();
         cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--default-color");
     } else if (cells[currentCell.y][currentCell.x].innerText == event.key.trim() && event.key != " ") {
         cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--correct-color");
-        advanceThroughSentence();
     } else if ((event.key != "Shift" && event.key != "Backspace" && event.key != " ")) {
         cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--incorrect-color");
+    }
+}
+
+function moveCursor(event) {
+    if (event.key == "Backspace") {
+        goBackOne();
+    //you cannot advance if you type something other than space
+    } else if (event.key != "Shift" && event.key != "Backspace" && event.key != " " && cells[currentCell.y][currentCell.x].innerText != "") {
         advanceThroughSentence();
     } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
         advanceThroughSentence();
@@ -70,19 +89,15 @@ function checkIfCorrectKey(event) {
 }
 
 function updateWordsPerMinute(event) {
-    if (event.key == " " && keystrokes.length == words[wordIndex].length) {
-        
-        for (let i = 0; i < keystrokes.length; i++) {
-            if (keystrokes[i] != words[wordIndex].charAt(i)) 
-                keystrokes = [];
+    for (let i = 0; i < keystrokes.length; i++) {
+        if (keystrokes[i] != words[wordIndex].charAt(i)) {
                 console.log("code reached");
                 return;
             }
-            keystrokes = [];
-            console.log("You typed " + words[wordIndex]);
-            wordsPerMinute++;
-            document.getElementById("wpm").innerText = wordsPerMinute + " WPM";
         }
+        console.log("You typed " + words[wordIndex]);
+        wordsPerMinute++;
+        document.getElementById("wpm").innerText = wordsPerMinute + " WPM";
 }
 
 
@@ -104,6 +119,7 @@ function goBackOne() {
             
         }
     } else {
+        console.log("back one");
         currentCell.setX = currentCell.x-1;
     }
 }
