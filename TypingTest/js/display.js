@@ -1,3 +1,6 @@
+const inputContainer = document.querySelector(".input-container");
+const outputContainer = document.querySelector(".output-container");
+
 var cells = new Array(numberOfRows);
 var rows = [];
 
@@ -6,15 +9,15 @@ for (let x = 0; x < numberOfRows; x++) {
 }
 
 window.onload = function() {
-    document.querySelector(".container").classList.add("container-inactive");
-    
-    var timer = new CountdownTimer(60);
+    inputContainer.classList.add("input-container-inactive");
+    outputContainer.classList.add("output-container-inactive");
+    var timer = new CountdownTimer(5);
     var display = document.getElementById("timer");
-    var timeObj = CountdownTimer.parse(60);
+    var timeObj = CountdownTimer.parse(5);
 
     format(timeObj.minutes, timeObj.seconds);
 
-    timer.onTick(format);
+    timer.onTick(format).onTick(endTest);
 
     document.getElementById("start-button").onclick = function () {
         prepareDisplay();
@@ -31,9 +34,22 @@ window.onload = function() {
     }
 }
 
+function endTest() {
+    if (this.expired()) {
+        console.log("test ended");
+        terminateDisplay();
+        calculateAccuracy();
+    }
+}
+
+function terminateDisplay() {
+    inputContainer.classList.remove("input-container-active");
+    inputContainer.classList.add("input-container-inactive");
+}
+
 function prepareDisplay() {
-    document.querySelector(".container").classList.remove("container-inactive");
-    document.querySelector(".container").classList.add("container-active");
+    inputContainer.classList.remove("input-container-inactive");
+    inputContainer.classList.add("input-container-active");
     document.getElementById("start-button").style.display = "none";
 }
 
@@ -112,33 +128,12 @@ function trim() {
         for (let x = 0 ; x < rows[y].numCells; x++) {
             cells[y][x].style.width = input.offsetWidth/rows[y].numCells + "px";
         }
-    }
+    }  
 }
-
-
-/*
-function createCharacter(char) {
-    let newCharacter = document.createElement("span");
-    newCharacter.classList.add("character");
-    newCharacter.style.width = input.offsetWidth/cellsPerRow + "%";
-    newCharacter.innerText = char;
-    return newCharacter;
+function displayOutput(wpm, accuracy) {
+    outputContainer.classList.remove("output-container-inactive");
+    setTimeout(function() {
+        outputContainer.classList.add("output-container-active");
+    }, 50);
+    outputContainer.children[0].innerText = "WPM " + wpm + " Accuracy " + accuracy.toFixed(2) + "%";
 }
-
-
-/*
-function writeSentence(sentence) {
-    let counter = 0;
-    let split = sentence.split('');
-    for (let y = 0; y < cells.length; y++) {
-        let str = "";
-        for (let x = 0; x < cells[y].length; x++) {
-            if (split[counter] === undefined) {
-                return;
-            }
-            cells[y][x].innerText = split[counter];
-            counter++;
-        }
-    }
-}
-*/

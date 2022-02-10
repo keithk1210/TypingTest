@@ -1,10 +1,9 @@
 var currentCell;
-var correctKeyStrokes = 0;
-var keystrokes = [];
+var userKeyInput = [];
 var wordsPerMinute = 0;
 var wordIndex = 0;
 const words = sentence1.split(" ");
-var lastKey;
+
 
 class Coord {
     constructor(x,y) {
@@ -23,40 +22,35 @@ currentCell = new Coord(0,0);
 
 
 window.addEventListener("keydown",function(event) { 
-    if (event.key != " " && event.key != "Backspace" && event.key != "Shift" && cells[currentCell.y][currentCell.x].innerText != "") {
-        keystrokes.push(event.key);
+    if (event.key != "Backspace" && event.key != "Shift") {
+        userKeyInput.push(event.key);
     } else if (event.key == "Backspace") {
-        if (keystrokes.length > 0) {
-            keystrokes.pop();
+        if (userKeyInput.length > 0) {
+            userKeyInput.pop();
         }
     }
-    console.log(keystrokes);
+    console.log(userKeyInput);
     changeLetterColor(event);
-    if (event.key == " " && keystrokes.length == words[wordIndex].length) {
-        updateWordsPerMinute(event);
-    }
-    updateCurrentWord(event);
-    clearKeystrokes(event);
     moveCursor(event);
 });
 
 function updateCurrentWord(event) {
     if (event.key == "Backspace" && cells[currentCell.y][currentCell.x-1].innerText == "") {
         wordIndex--;
-        keystrokes = [];
+        userKeyInput = [];
         console.log("wordindex " + wordIndex);
     } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
         wordIndex++;
-        keystrokes = [];
+        userKeyInput = [];
         console.log("wordindex " + wordIndex);
     }
 }
 
-function clearKeystrokes(event) {
+function clearuserKeyInput(event) {
     if (event.key == "Backspace" && cells[currentCell.y][currentCell.x-1].innerText == "") {
-        keystrokes = [];
+        userKeyInput = [];
     } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
-        keystrokes = [];
+        userKeyInput = [];
     }
 }
 
@@ -89,8 +83,8 @@ function moveCursor(event) {
 }
 
 function updateWordsPerMinute(event) {
-    for (let i = 0; i < keystrokes.length; i++) {
-        if (keystrokes[i] != words[wordIndex].charAt(i)) {
+    for (let i = 0; i < userKeyInput.length; i++) {
+        if (userKeyInput[i] != words[wordIndex].charAt(i)) {
                 console.log("code reached");
                 return;
             }
