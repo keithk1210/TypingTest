@@ -1,14 +1,24 @@
 /*GENERAL*/
 
 :root {
-    --correct-color: green;
-    --incorrect-color: red;
+    --correct-color: #66cdaa ;
+    --incorrect-color: #990000;
     --default-color: black;
     --cursor-color: gray;
 }
 
 * {
     box-sizing: border-box;
+    font-family: Ubuntu;
+}
+
+@font-face {
+    font-family: FontFabricBold;
+    src: url(fonts/fontfabricbold.otf);
+}
+@font-face {
+    font-family: Ubuntu;
+    src: url(fonts/Ubuntu-Regular.ttf);
 }
 
 .main-content {
@@ -17,17 +27,19 @@
 }
 .header h1 {
     text-align: center;
+    font-family: FontFabricBold;
 }
 /*INPUT*/
 .input {
     width: 75%;
     position: relative;
     border: 1px solid black;
-    height: 80vh;
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     z-index: 0;
+    transition: transform 1s;
 }
 .start-button-container {
     text-align: center;
@@ -44,6 +56,7 @@
     display: flex;
     z-index: 1;
     position: relative;
+    transition: transform 0.5s;
 }
 .row-p {
     margin: 0;
@@ -59,6 +72,7 @@
     height: 100%;
     vertical-align: middle;
     text-align: center;
+    font-size: 30px;
 
 }
 .row-p .character:last-of-type {
@@ -85,9 +99,11 @@
     transition: transform 0.3s;
 }
 .input-container {
+    height: 80vh;
     width: 50vw;
     margin: auto;
     display: flex;
+    overflow: hidden;
 }
 .input-container-inactive {
     display: none;
@@ -118,7 +134,7 @@
     display: flex;
     height: 100px;
 }
-@-webkit-keyframes fadein { /* Safari and Chrome */
+@-webkit-keyframes fadein { 
     from {
         opacity:0;
     }

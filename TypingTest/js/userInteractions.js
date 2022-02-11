@@ -2,8 +2,7 @@ var currentCell;
 var userKeyInput = [];
 var wordsPerMinute = 0;
 var wordIndex = 0;
-const words = sentence1.split(" ");
-
+var rowIndex = 0;
 
 class Coord {
     constructor(x,y) {
@@ -29,20 +28,24 @@ window.addEventListener("keydown",function(event) {
             userKeyInput.pop();
         }
     }
-    console.log(userKeyInput);
+    //console.log(userKeyInput);
     changeLetterColor(event);
+    if (currentCell.x == rows[rowIndex].numCells-1 && currentCell.y == (numberOfRows-1)/2) {
+        addNewRow();
+    }
     moveCursor(event);
+    
 });
 
 function updateCurrentWord(event) {
     if (event.key == "Backspace" && cells[currentCell.y][currentCell.x-1].innerText == "") {
         wordIndex--;
         userKeyInput = [];
-        console.log("wordindex " + wordIndex);
+        //console.log("wordindex " + wordIndex);
     } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
         wordIndex++;
         userKeyInput = [];
-        console.log("wordindex " + wordIndex);
+        //console.log("wordindex " + wordIndex);
     }
 }
 
@@ -66,6 +69,7 @@ function changeLetterColor(event) {
 }
 
 function moveCursor(event) {
+    //console.log("x " + currentCell.x + " y " + currentCell.y);
     if (event.key == "Backspace") {
         goBackOne();
     //you cannot advance if you type something other than space
@@ -74,7 +78,7 @@ function moveCursor(event) {
     } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
         advanceThroughSentence();
     }
-    let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
+    let xUnit = input.offsetWidth/rows[rowIndex].numCells;
     let yUnit = input.offsetHeight/numberOfRows;
     cursor.style.height = yUnit + "px";
     cursor.style.width = xUnit + "px";
@@ -85,7 +89,6 @@ function moveCursor(event) {
 function updateWordsPerMinute(event) {
     for (let i = 0; i < userKeyInput.length; i++) {
         if (userKeyInput[i] != words[wordIndex].charAt(i)) {
-                console.log("code reached");
                 return;
             }
         }
@@ -98,9 +101,12 @@ function updateWordsPerMinute(event) {
 function advanceThroughSentence() {
     //console.log("x " + currentCell.x + "y "+ currentCell.y);
     currentCell.setX = currentCell.x + 1;
-    if (currentCell.x === rows[currentCell.y].numCells) {
+    if (currentCell.x === rows[rowIndex].numCells) {
         currentCell.setX = 0;
-        currentCell.setY = currentCell.y + 1;
+        if (currentCell.y != (numberOfRows-1)/2) {
+            currentCell.setY = currentCell.y + 1;
+        }
+        rowIndex++;
     }
 }
 
@@ -110,10 +116,9 @@ function goBackOne() {
         if (currentCell.y != 0) {
             currentCell.setY = currentCell.y - 1;
             currentCell.setX = rows[currentCell.y].numCells-1;
-            
         }
     } else {
-        console.log("back one");
+        //console.log("back one");
         currentCell.setX = currentCell.x-1;
     }
 }

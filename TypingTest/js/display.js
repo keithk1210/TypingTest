@@ -3,17 +3,19 @@ const outputContainer = document.querySelector(".output-container");
 
 var cells = new Array(numberOfRows);
 var rows = [];
+var currentWord = 0;
+const words = sentence1.split(" ");
 
-for (let x = 0; x < numberOfRows; x++) {
+for (let x = 0; x < numberOfRows + 1; x++) {
     cells[x] = new Array(cellsPerRow);
 }
 
 window.onload = function() {
     inputContainer.classList.add("input-container-inactive");
     outputContainer.classList.add("output-container-inactive");
-    var timer = new CountdownTimer(5);
+    var timer = new CountdownTimer(60);
     var display = document.getElementById("timer");
-    var timeObj = CountdownTimer.parse(5);
+    var timeObj = CountdownTimer.parse(60);
 
     format(timeObj.minutes, timeObj.seconds);
 
@@ -22,7 +24,7 @@ window.onload = function() {
     document.getElementById("start-button").onclick = function () {
         prepareDisplay();
         initalizeDisplay();
-        writeSentence(sentence1);
+        writeIntialWords();
         trim();
         timer.start();
     }
@@ -67,47 +69,70 @@ function initalizeDisplay() {
     cursor.style.height = input.offsetHeight/numberOfRows + "px";
     cursor.style.width = input.offsetWidth/cellsPerRow + "px";
     for (let y = 0; y < numberOfRows; y++) {
-        let newRow = document.createElement("div");
-        let newRowP = document.createElement("p");
-        newRow.classList.add("row");
-        newRowP.classList.add("row-p");
-        newRow.appendChild(newRowP);
-
-        for (let x = 0; x < cellsPerRow; x++) {
-            let newCharacter = document.createElement("span");
-            newCharacter.classList.add("character");
-            ///console.log(input.offsetWidth);
-            //newCharacter.style.width = width/cellsPerRow + "%";
-            newRowP.appendChild(newCharacter);
-            cells[y][x] = newCharacter;
-        }
-        
-        
+        let newRow = createNewRow(y);
         input.appendChild(newRow);
         rows[y] = new Row(newRow,cellsPerRow);
     }
+    readjustHeight();
 }
 
-function writeSentence(sentence) {
-    let wordIndex = 0;
-    let words = sentence.split(' ');
-    for (let y = 0; y < numberOfRows; y++) {   
-        //console.log(y);
-        for (let x = 0; x < cellsPerRow; x++) {
-            //if the row can fit the word, then add it
-            if (wordIndex < words.length) {
-                if ((x + words[wordIndex].length < cellsPerRow)) {
-                    //writes out word
-                    for (let i = 0; i < words[wordIndex].length; i++) {
-                        //if (words[wordIndex].charAt(i) != " ") {
-                            //console.log(words[wordIndex].charAt(i));
-                            cells[y][x].innerText = words[wordIndex].charAt(i);
-                            x++;
-                        //}
-                    }
-                    //moves on to next word
-                    wordIndex++;
+function addNewRow() {
+    let newRow = createNewRow(numberOfRows);
+    rows[numberOfRows] = new Row(newRow,cellsPerRow);
+    for (let x = 0; x < cellsPerRow; x++) {
+        if (currentWord < words.length) {
+            if ((x + words[currentWord].length < cellsPerRow)) {
+                for (let i = 0; i < words[currentWord].length; i++) {
+                    cells[numberOfRows][x].innerText = words[currentWord].charAt(i);
+                    x++;
                 }
+                currentWord++;
+            }
+        }
+    }
+    
+    
+    //console.log(rows.length);
+    input.appendChild(newRow);
+    
+    trimLast();
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].row.style.transform ="translateY(-" + input.offsetHeight/numberOfRows + "px)";
+    }
+    cells.shift();
+    console.log(cells.length);
+    //input.style.transform = 
+}
+
+function createNewRow(y) {
+    let newRow = document.createElement("div");
+    let newRowP = document.createElement("p");
+    newRow.style.height = input.offsetHeight/numberOfRows + "px";
+    newRow.classList.add("row");
+    newRowP.classList.add("row-p");
+    newRow.appendChild(newRowP);
+
+    for (let x = 0; x < cellsPerRow; x++) {
+        let newCharacter = document.createElement("span");
+        newCharacter.classList.add("character");
+        newRowP.appendChild(newCharacter);
+        cells[y][x] = newCharacter;
+    }
+    return newRow;
+}
+
+function writeIntialWords() {
+    for (let y = 0; y < numberOfRows; y++) {   
+        for (let x = 0; x < cellsPerRow; x++) {
+            if (currentWord < words.length) {
+                if ((x + words[currentWord].length < cellsPerRow)) {
+                    for (let i = 0; i < words[currentWord].length; i++) {
+                        cells[y][x].innerText = words[currentWord].charAt(i);
+                        x++;
+                    }
+                    currentWord++;
+                }
+                
             }
         }
     }
@@ -127,6 +152,29 @@ function trim() {
     for (let y = 0; y < numberOfRows; y++) {
         for (let x = 0 ; x < rows[y].numCells; x++) {
             cells[y][x].style.width = input.offsetWidth/rows[y].numCells + "px";
+        }
+    }  
+}
+
+function trimLast() {
+        let x = cellsPerRow-1;
+        while(!(cells[numberOfRows][x-1].innerText) && x-1 > 0) {
+            //console.log("x " + x + " y " + y);
+            cells[numberOfRows][x].remove();
+            rows[numberOfRows].setNumCells = rows[numberOfRows].numCells - 1;
+            x--;
+        }
+    //readjusts width after trim
+        for (let x = 0 ; x < rows[numberOfRows].numCells; x++) {
+            cells[numberOfRows][x].style.width = input.offsetWidth/rows[numberOfRows].numCells + "px";
+        }
+}
+
+function readjustHeight() {
+    for (let y = 0; y < numberOfRows; y++) {
+        for (let x = 0 ; x < rows[y].numCells; x++) {
+            console.log(rows[y].row.offsetHeight);
+            cells[y][x].style.lineHeight = rows[y].row.offsetHeight + "px";
         }
     }  
 }
