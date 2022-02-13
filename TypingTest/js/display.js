@@ -6,9 +6,11 @@ var rows = [];
 var currentWord = 0;
 const words = sentence1.split(" ");
 
-for (let x = 0; x < numberOfRows + 1; x++) {
+for (let x = 0; x < numberOfRows; x++) {
     cells[x] = new Array(cellsPerRow);
 }
+
+//figure out how to advance past the first row 
 
 window.onload = function() {
     inputContainer.classList.add("input-container-inactive");
@@ -70,6 +72,7 @@ function initalizeDisplay() {
     cursor.style.width = input.offsetWidth/cellsPerRow + "px";
     for (let y = 0; y < numberOfRows; y++) {
         let newRow = createNewRow(y);
+        newRow.style.top = input.offsetHeight/3 * y + "px"; 
         input.appendChild(newRow);
         rows[y] = new Row(newRow,cellsPerRow);
     }
@@ -77,13 +80,27 @@ function initalizeDisplay() {
 }
 
 function addNewRow() {
-    let newRow = createNewRow(numberOfRows);
-    rows[numberOfRows] = new Row(newRow,cellsPerRow);
+    console.log("new row added");
+    console.log("---------");
+    rows[0].row.remove();
+    rows.shift();
+    let newRow = createNewRow(numberOfRows-1);
+    newRow.style.top = input.offsetHeight + "px";
+    rows[numberOfRows-1] = new Row(newRow,cellsPerRow);
+    input.appendChild(newRow);
+    for (let i = 0; i < rows.length; i ++) {
+        rows[i].row.style.top = input.offsetHeight/numberOfRows + (input.offsetHeight/numberOfRows * i) + "px";
+    }
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].row.style.transform = "translateY(-" + input.offsetHeight/numberOfRows + "px)";
+    }
+    cells.shift();
+    cells.push(new Array(cellsPerRow));
     for (let x = 0; x < cellsPerRow; x++) {
         if (currentWord < words.length) {
             if ((x + words[currentWord].length < cellsPerRow)) {
                 for (let i = 0; i < words[currentWord].length; i++) {
-                    cells[numberOfRows][x].innerText = words[currentWord].charAt(i);
+                    cells[numberOfRows-1][x].innerText = words[currentWord].charAt(i);
                     x++;
                 }
                 currentWord++;
@@ -93,14 +110,10 @@ function addNewRow() {
     
     
     //console.log(rows.length);
-    input.appendChild(newRow);
     
+    console.log("row length " + rows.length);
     trimLast();
-    for (let i = 0; i < rows.length; i++) {
-        rows[i].row.style.transform ="translateY(-" + input.offsetHeight/numberOfRows + "px)";
-    }
-    cells.shift();
-    console.log(cells.length);
+    console.log(console.log(cells[currentCell.y]));
     //input.style.transform = 
 }
 
@@ -116,6 +129,8 @@ function createNewRow(y) {
         let newCharacter = document.createElement("span");
         newCharacter.classList.add("character");
         newRowP.appendChild(newCharacter);
+        console.log("y " + y);
+        //console.log("cells.length " + cells.length);
         cells[y][x] = newCharacter;
     }
     return newRow;
@@ -158,22 +173,22 @@ function trim() {
 
 function trimLast() {
         let x = cellsPerRow-1;
-        while(!(cells[numberOfRows][x-1].innerText) && x-1 > 0) {
+        while(!(cells[numberOfRows-1][x-1].innerText) && x-1 > 0) {
             //console.log("x " + x + " y " + y);
-            cells[numberOfRows][x].remove();
-            rows[numberOfRows].setNumCells = rows[numberOfRows].numCells - 1;
+            cells[numberOfRows-1][x].remove();
+            rows[numberOfRows-1].setNumCells = rows[numberOfRows-1].numCells - 1;
             x--;
         }
     //readjusts width after trim
-        for (let x = 0 ; x < rows[numberOfRows].numCells; x++) {
-            cells[numberOfRows][x].style.width = input.offsetWidth/rows[numberOfRows].numCells + "px";
+        for (let x = 0 ; x < rows[numberOfRows-1].numCells; x++) {
+            cells[numberOfRows-1][x].style.width = input.offsetWidth/rows[numberOfRows-1].numCells + "px";
         }
 }
 
 function readjustHeight() {
     for (let y = 0; y < numberOfRows; y++) {
         for (let x = 0 ; x < rows[y].numCells; x++) {
-            console.log(rows[y].row.offsetHeight);
+            //console.log(rows[y].row.offsetHeight);
             cells[y][x].style.lineHeight = rows[y].row.offsetHeight + "px";
         }
     }  

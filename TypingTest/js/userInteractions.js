@@ -30,8 +30,17 @@ window.addEventListener("keydown",function(event) {
     }
     //console.log(userKeyInput);
     changeLetterColor(event);
-    if (currentCell.x == rows[rowIndex].numCells-1 && currentCell.y == (numberOfRows-1)/2) {
+    if (currentCell.x == rows[currentCell.y].numCells-1 && currentCell.y == (numberOfRows-1)/2 && event.key != "Backspace") {
+        advanceThroughSentence();
         addNewRow();
+        let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
+        let yUnit = input.offsetHeight/numberOfRows;
+        cursor.style.height = yUnit + "px";
+        cursor.style.width = xUnit + "px";
+        cursor.style.transform = "translateX(" + currentCell.x * xUnit + "px)";
+        cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
+        rows.shift();
+        return;
     }
     moveCursor(event);
     
@@ -58,6 +67,7 @@ function clearuserKeyInput(event) {
 }
 
 function changeLetterColor(event) {
+    console.log("x " + currentCell.x + " y " + currentCell.y);
     //console.log("!" + cells[currentCell.y][currentCell.x].children[0].innerText + "!");
     if (event.key == "Backspace") {
         cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--default-color");
@@ -77,8 +87,11 @@ function moveCursor(event) {
         advanceThroughSentence();
     } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
         advanceThroughSentence();
+    } else if (event.key == " ") {
+        console.log("current cell y " + currentCell.y + " current cell x " + currentCell.x);
+        console.log(cells[currentCell.y][currentCell.x].innerText);
     }
-    let xUnit = input.offsetWidth/rows[rowIndex].numCells;
+    let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
     let yUnit = input.offsetHeight/numberOfRows;
     cursor.style.height = yUnit + "px";
     cursor.style.width = xUnit + "px";
@@ -101,12 +114,15 @@ function updateWordsPerMinute(event) {
 function advanceThroughSentence() {
     //console.log("x " + currentCell.x + "y "+ currentCell.y);
     currentCell.setX = currentCell.x + 1;
-    if (currentCell.x === rows[rowIndex].numCells) {
+    //console.log("numm cells " + rows[currentCell.y].numCells);
+    //console.log("current cell x" + currentCell.x);
+    if (currentCell.x === rows[currentCell.y].numCells) {
+        console.log("changed");
         currentCell.setX = 0;
         if (currentCell.y != (numberOfRows-1)/2) {
             currentCell.setY = currentCell.y + 1;
         }
-        rowIndex++;
+        //rowIndex++;
     }
 }
 
