@@ -5,6 +5,7 @@
     --incorrect-color: #990000;
     --default-color: black;
     --cursor-color: gray;
+    --cursor-height: 50px;
 }
 
 * {

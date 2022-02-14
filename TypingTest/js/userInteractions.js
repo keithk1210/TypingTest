@@ -3,6 +3,7 @@ var userKeyInput = [];
 var wordsPerMinute = 0;
 var wordIndex = 0;
 var rowIndex = 0;
+var hypotheticalCursorY = 0;
 
 class Coord {
     constructor(x,y) {
@@ -21,29 +22,29 @@ currentCell = new Coord(0,0);
 
 
 window.addEventListener("keydown",function(event) { 
-    if (event.key != "Backspace" && event.key != "Shift") {
-        userKeyInput.push(event.key);
-    } else if (event.key == "Backspace") {
-        if (userKeyInput.length > 0) {
-            userKeyInput.pop();
+    if (event.key != "Enter") {
+        if (event.key != "Backspace" && event.key != "Shift") {
+            userKeyInput.push(event.key);
+        } else if (event.key == "Backspace") {
+            if (userKeyInput.length > 0) {
+                userKeyInput.pop();
+            }
         }
+        //console.log(userKeyInput);
+        changeLetterColor(event);
+        if (currentCell.x == rows[currentCell.y].numCells-1 && currentCell.y == (numberOfRows-1)/2 && event.key != "Backspace") {
+            advanceThroughSentence();
+            addNewRow();
+            let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
+            let yUnit = input.offsetHeight/numberOfRows;
+            cursor.style.height = root.getPropertyValue("--cursor-height");
+            cursor.style.width = xUnit + "px";
+            cursor.style.transform = "translateX(" + currentCell.x * xUnit + "px)";
+            cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
+            return;
+        }
+        moveCursor(event);
     }
-    //console.log(userKeyInput);
-    changeLetterColor(event);
-    if (currentCell.x == rows[currentCell.y].numCells-1 && currentCell.y == (numberOfRows-1)/2 && event.key != "Backspace") {
-        advanceThroughSentence();
-        addNewRow();
-        let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
-        let yUnit = input.offsetHeight/numberOfRows;
-        cursor.style.height = yUnit + "px";
-        cursor.style.width = xUnit + "px";
-        cursor.style.transform = "translateX(" + currentCell.x * xUnit + "px)";
-        cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
-        rows.shift();
-        return;
-    }
-    moveCursor(event);
-    
 });
 
 function updateCurrentWord(event) {
@@ -93,7 +94,8 @@ function moveCursor(event) {
     }
     let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
     let yUnit = input.offsetHeight/numberOfRows;
-    cursor.style.height = yUnit + "px";
+    cursor.style.height = root.getPropertyValue("--cursor-height");
+    cursor.style.top = (input.offsetHeight/numberOfRows)/2 - (cursor.offsetHeight/2) + "px";
     cursor.style.width = xUnit + "px";
     cursor.style.transform = "translateX(" + currentCell.x * xUnit + "px)";
     cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
@@ -122,7 +124,7 @@ function advanceThroughSentence() {
         if (currentCell.y != (numberOfRows-1)/2) {
             currentCell.setY = currentCell.y + 1;
         }
-        //rowIndex++;
+        hypotheticalCursorY++;
     }
 }
 

@@ -1,6 +1,6 @@
 //numbers
 const numberOfRows = 3;
-const cellsPerRow = 20;
+const cellsPerRow = 25;
 //html elements
 const input = document.getElementById("input");
 const root = getComputedStyle(document.documentElement);
