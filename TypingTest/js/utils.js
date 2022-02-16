@@ -48,3 +48,6 @@ CountdownTimer.parse = function(seconds) {
     };
 };
 
+function isPermittedKey(key) {
+    return key != "Enter";
+}

@@ -1,9 +1,8 @@
 var currentCell;
 var userKeyInput = [];
-var wordsPerMinute = 0;
-var wordIndex = 0;
-var rowIndex = 0;
 var hypotheticalCursorY = 0;
+var numberOfKeystrokes = 0;
+var correctKeystrokes = 0;
 
 class Coord {
     constructor(x,y) {
@@ -20,78 +19,48 @@ class Coord {
 
 currentCell = new Coord(0,0);
 
-
-window.addEventListener("keydown",function(event) { 
-    if (event.key != "Enter") {
-        if (event.key != "Backspace" && event.key != "Shift") {
-            userKeyInput.push(event.key);
-        } else if (event.key == "Backspace") {
-            if (userKeyInput.length > 0) {
-                userKeyInput.pop();
+function startGame() {
+    window.addEventListener("keydown",function(event) {
+        console.log(cells[currentCell.y][currentCell.x].innerText);
+        if(event.key == " ") {
+            event.preventDefault();
+          }
+        if (isPermittedKey(event.key)) {
+            if (event.key == "Backspace") {
+                cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--default-color");
+                goBackOne();
+                if (userKeyInput.length > 0) {
+                    userKeyInput.pop();
+                }
+            } else if (event.key.length == 1 && ((event.key != " " && !currentCellIsEmptySpace()) || (event.key == " " && currentCellIsEmptySpace()))) {
+                if (event.key != " ") {
+                    numberOfKeystrokes++;
+                }
+                if (currentCell.x == rows[currentCell.y].numCells-1 && hypotheticalCursorY > 0) {
+                    advanceThroughSentence();
+                    addNewRow();
+                } else {
+                    checkIfCorrect(event);
+                    advanceThroughSentence();
+                    userKeyInput.push(event.key);
+                }
             }
+            updateAccuracy();
+            redrawCursor();
         }
-        //console.log(userKeyInput);
-        changeLetterColor(event);
-        if (currentCell.x == rows[currentCell.y].numCells-1 && currentCell.y == (numberOfRows-1)/2 && event.key != "Backspace") {
-            advanceThroughSentence();
-            addNewRow();
-            let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
-            let yUnit = input.offsetHeight/numberOfRows;
-            cursor.style.height = root.getPropertyValue("--cursor-height");
-            cursor.style.width = xUnit + "px";
-            cursor.style.transform = "translateX(" + currentCell.x * xUnit + "px)";
-            cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
-            return;
-        }
-        moveCursor(event);
-    }
-});
-
-function updateCurrentWord(event) {
-    if (event.key == "Backspace" && cells[currentCell.y][currentCell.x-1].innerText == "") {
-        wordIndex--;
-        userKeyInput = [];
-        //console.log("wordindex " + wordIndex);
-    } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
-        wordIndex++;
-        userKeyInput = [];
-        //console.log("wordindex " + wordIndex);
-    }
+    });
 }
 
-function clearuserKeyInput(event) {
-    if (event.key == "Backspace" && cells[currentCell.y][currentCell.x-1].innerText == "") {
-        userKeyInput = [];
-    } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
-        userKeyInput = [];
-    }
-}
-
-function changeLetterColor(event) {
-    console.log("x " + currentCell.x + " y " + currentCell.y);
-    //console.log("!" + cells[currentCell.y][currentCell.x].children[0].innerText + "!");
-    if (event.key == "Backspace") {
-        cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--default-color");
-    } else if (cells[currentCell.y][currentCell.x].innerText == event.key.trim() && event.key != " ") {
+function checkIfCorrect(event) {
+    if (cells[currentCell.y][currentCell.x].innerText == event.key.trim() && event.key != " ") {
         cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--correct-color");
+        correctKeystrokes++;
     } else if ((event.key != "Shift" && event.key != "Backspace" && event.key != " ")) {
         cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--incorrect-color");
     }
 }
 
-function moveCursor(event) {
-    //console.log("x " + currentCell.x + " y " + currentCell.y);
-    if (event.key == "Backspace") {
-        goBackOne();
-    //you cannot advance if you type something other than space
-    } else if (event.key != "Shift" && event.key != "Backspace" && event.key != " " && cells[currentCell.y][currentCell.x].innerText != "") {
-        advanceThroughSentence();
-    } else if ((event.key == " " && cells[currentCell.y][currentCell.x].innerText == "")) {
-        advanceThroughSentence();
-    } else if (event.key == " ") {
-        console.log("current cell y " + currentCell.y + " current cell x " + currentCell.x);
-        console.log(cells[currentCell.y][currentCell.x].innerText);
-    }
+function redrawCursor() {
     let xUnit = input.offsetWidth/rows[currentCell.y].numCells;
     let yUnit = input.offsetHeight/numberOfRows;
     cursor.style.height = root.getPropertyValue("--cursor-height");
@@ -101,25 +70,9 @@ function moveCursor(event) {
     cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
 }
 
-function updateWordsPerMinute(event) {
-    for (let i = 0; i < userKeyInput.length; i++) {
-        if (userKeyInput[i] != words[wordIndex].charAt(i)) {
-                return;
-            }
-        }
-        console.log("You typed " + words[wordIndex]);
-        wordsPerMinute++;
-        document.getElementById("wpm").innerText = wordsPerMinute + " WPM";
-}
-
-
 function advanceThroughSentence() {
-    //console.log("x " + currentCell.x + "y "+ currentCell.y);
     currentCell.setX = currentCell.x + 1;
-    //console.log("numm cells " + rows[currentCell.y].numCells);
-    //console.log("current cell x" + currentCell.x);
     if (currentCell.x === rows[currentCell.y].numCells) {
-        console.log("changed");
         currentCell.setX = 0;
         if (currentCell.y != (numberOfRows-1)/2) {
             currentCell.setY = currentCell.y + 1;
@@ -129,14 +82,16 @@ function advanceThroughSentence() {
 }
 
 function goBackOne() {
-    //console.log("called");
     if (currentCell.x == 0) {
         if (currentCell.y != 0) {
             currentCell.setY = currentCell.y - 1;
             currentCell.setX = rows[currentCell.y].numCells-1;
         }
     } else {
-        //console.log("back one");
         currentCell.setX = currentCell.x-1;
     }
+}
+//functions for readability
+function currentCellIsEmptySpace() {
+    return cells[currentCell.y][currentCell.x].innerText == "" || cells[currentCell.y][currentCell.x].innerText == "\n";
 }

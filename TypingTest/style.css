@@ -6,6 +6,7 @@
     --default-color: black;
     --cursor-color: gray;
     --cursor-height: 50px;
+    --hightlight-color: #6495ED;
 }
 
 * {
@@ -43,10 +44,15 @@
     transition: object-position 1s;
     overflow: hidden;
 }
-.start-button-container {
+.info-msg-container {
     text-align: center;
+    background: var(--hightlight-color);
+    border-radius: 10px;
+    width: 250px;
+    padding: 10px 5px;
+    margin: auto;
 }
-#start-button {
+.info-msg {
     cursor: pointer;
     margin: auto;
 }
@@ -104,6 +110,7 @@
     height: 80vh;
     width: 50vw;
     margin: auto;
+    margin-bottom: 100px;
     display: flex;
     overflow: hidden;
 }
@@ -113,24 +120,48 @@
 .input-container-active {
     display: flex;
 }
-#timer {
-    margin-left: 10px
+.info {
+    text-align: center;
+    width: 100%;
+    margin: auto;
+    margin-bottom: 50px;
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
 }
+.info span {
+    background: var(--hightlight-color);
+    border-radius: 10px;
+    padding: 10px 10px;
+    font-family: FontFabricBold;
+    margin: 0 5px;
+}
+
 /*OUTPUT*/
 .output-container {
-    width: 50vw;
+    width: 200px;
     margin: auto;
     height: 0px;
     transition: height 1s;
     background: gray;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    align-items: center;
+}
+.output-header {
+    background-color: var(--hightlight-color);
+    border-radius: 10px;
+    padding: 5px 10px;
+    text-align: center;
+    font-style: italic;
+}
+.output-container > * {
+    -webkit-animation: fadein 2s;
 }
 .output-container span {
     text-align: center;
-    -webkit-animation: fadein 5s;
     width: 100%;
-}
-.output-container-inactive {
-    display: none;
 }
 .output-container-active {
     display: flex;

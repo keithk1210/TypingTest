@@ -4,68 +4,56 @@ const outputContainer = document.querySelector(".output-container");
 var cells = new Array(numberOfRows);
 var rows = [];
 var currentWord = 0;
-const words = sentence1.split(" ");
+const words = sentence1.replace("\n", " ").split(" ");
 
 for (let x = 0; x < numberOfRows; x++) {
     cells[x] = new Array(cellsPerRow);
 }
 
-//figure out how to advance past the first row 
 
-window.onload = function() {
-    inputContainer.classList.add("input-container-inactive");
-    outputContainer.classList.add("output-container-inactive");
-    var timer = new CountdownTimer(60);
-    var display = document.getElementById("timer");
-    var timeObj = CountdownTimer.parse(60);
-
-    format(timeObj.minutes, timeObj.seconds);
-
-    timer.onTick(format).onTick(endTest);
-
-    window.addEventListener("keydown", function (event) {  
-        if (event.key == "Enter") {
-            prepareDisplay();
-            initalizeDisplay();
-            writeIntialWords();
-            trim();
-            timer.start();
-        }
-    });
-
-    function format(minutes, seconds) {
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        display.textContent = minutes + ':' + seconds;
-    }
-}
 
 function endTest() {
     if (this.expired()) {
         console.log("test ended");
         terminateDisplay();
-        calculateAccuracy();
+        calculateWPM();
     }
 }
 
 function terminateDisplay() {
-    inputContainer.classList.remove("input-container-active");
-    inputContainer.classList.add("input-container-inactive");
+    document.querySelector(".input-container").remove();
 }
 
 function prepareDisplay() {
-    inputContainer.classList.remove("input-container-inactive");
-    inputContainer.classList.add("input-container-active");
-    document.getElementById("start-button").style.display = "none";
+    const inputContainer = document.createElement("div");
+    inputContainer.classList.add("input-container");
+
+    input = document.createElement("div");
+    input.classList.add("input");
+    input.setAttribute("id","input");
+    
+    cursor = document.createElement("div");
+    cursor.classList.add("cursor");
+    cursor.setAttribute("id","cursor");
+
+    input.appendChild(cursor);
+    inputContainer.appendChild(input);
+    document.getElementsByTagName("body")[0].appendChild(inputContainer);
+
+    let accuracyDisplay = document.createElement("span");
+    accuracyDisplay.innerText = accuracyDisplayInitialText;
+    document.getElementById("info").appendChild(accuracyDisplay);
+
+    document.querySelector(".info-msg-container").remove();
 }
 
 class Row {
-    constructor(row,numCells, cellRow) {
+    constructor(row, numCells, cellRow) {
         this.row = row;
         this.numCells = numCells;
         this.cellRow = cellRow;
     }
-    set setNumCells(numCells) {
+    set setNumcells(numCells) {
         this.numCells = numCells;
     }
  }
@@ -84,30 +72,27 @@ function initalizeDisplay() {
 }
 
 function addNewRow() {
-    console.log("new row added");
-    console.log("---------");
-    rows[0].row.remove();
-    rows.shift();
+
     cells.shift();
     cells.push(new Array(cellsPerRow));
+
+    rows[0].row.remove();
+    rows.shift();
     let newRow = createNewRow(numberOfRows-1);
     newRow.row.style.top = input.offsetHeight + "px";
     rows[numberOfRows-1] = newRow;
     input.appendChild(newRow.row);
+    
     setTimeout(function() {
-    for (let i = 0; i < rows.length; i++) {
-        if (hypotheticalCursorY == 2 || i == rows.length - 1) {
-            rows[i].row.style.transform = "translateY(" + (-input.offsetHeight/numberOfRows) + "px)";
-        } else {
-            let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("-") + 1,  rows[i].row.style.transform.indexOf("p"));
-            console.log("parse float "  + parseFloat(prevTranslateY));
-            console.log("divided thing " + -input.offsetHeight/numberOfRows);
-            let newTranslateY = -parseFloat(prevTranslateY) + (-input.offsetHeight/numberOfRows);
-            console.log("new translate y" + newTranslateY);
-            rows[i].row.style.transform = "translateY(" +  newTranslateY + "px)";
+        for (let i = 0; i < rows.length; i++) {
+            if (hypotheticalCursorY == 2 || i == rows.length - 1) {
+                rows[i].row.style.transform = "translateY(" + (-input.offsetHeight/numberOfRows) + "px)";
+            } else {
+                let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("-") + 1,  rows[i].row.style.transform.indexOf("p"));
+                let newTranslateY = -parseFloat(prevTranslateY) + (-input.offsetHeight/numberOfRows);
+                rows[i].row.style.transform = "translateY(" +  newTranslateY + "px)";
+            }
         }
-        console.log(rows[i].row.style.transform);
-    }
     }, 100);
     
     for (let x = 0; x < cellsPerRow; x++) {
@@ -121,15 +106,9 @@ function addNewRow() {
             }
         }
     }
-    
+
     readjustHeight();
-    
-    //console.log(rows.length);
-    
-    console.log("row length " + rows.length);
     trimLast();
-    console.log(console.log(cells[currentCell.y]));
-    //input.style.transform = 
 }
 
 function createNewRow(y) {
@@ -144,8 +123,6 @@ function createNewRow(y) {
         let newCharacter = document.createElement("span");
         newCharacter.classList.add("character");
         newRowP.appendChild(newCharacter);
-        console.log("y " + y);
-        //console.log("cells.length " + cells.length);
         cells[y][x] = newCharacter;
     }
     return new Row(newRow, cellsPerRow, cells[y]);
@@ -172,9 +149,8 @@ function trim() {
     for (let y = 0; y < numberOfRows; y ++) {
         let x = cellsPerRow-1;
         while(!(cells[y][x-1].innerText) && x-1 > 0) {
-            //console.log("x " + x + " y " + y);
             cells[y][x].remove();
-            rows[y].setNumCells = rows[y].numCells - 1;
+            rows[y].setNumcells = rows[y].numCells - 1;
             x--;
         }
     }
@@ -189,9 +165,8 @@ function trim() {
 function trimLast() {
         let x = cellsPerRow-1;
         while(!(cells[numberOfRows-1][x-1].innerText) && x-1 > 0) {
-            //console.log("x " + x + " y " + y);
             cells[numberOfRows-1][x].remove();
-            rows[numberOfRows-1].setNumCells = rows[numberOfRows-1].numCells - 1;
+            rows[numberOfRows-1].setNumcells = rows[numberOfRows-1].numCells - 1;
             x--;
         }
     //readjusts width after trim
@@ -208,10 +183,29 @@ function readjustHeight() {
         }
     }  
 }
-function displayOutput(wpm, accuracy) {
-    outputContainer.classList.remove("output-container-inactive");
+function displayOutput(wpm) {
+    let body = document.getElementsByTagName("body")[0];
+    let outputContainer = document.createElement("div");
+    outputContainer.classList.add("output-container");
+    let outputText = document.createElement("span");
+    let header = document.createElement("h3");
+    header.innerText = outputMsg;
+    header.classList.add("output-header");
+    outputText.classList.add("output");
+    body.appendChild(outputContainer);
     setTimeout(function() {
         outputContainer.classList.add("output-container-active");
     }, 50);
-    outputContainer.children[0].innerText = "WPM " + wpm + " Accuracy " + accuracy.toFixed(2) + "%";
+    setTimeout(function() {
+        outputContainer.appendChild(header);
+    outputContainer.appendChild(outputText);
+    }, 500);
+    outputText.innerText = "WPM: " + wpm;
+}
+
+function updateAccuracy() {
+    let accuracy = (correctKeystrokes/numberOfKeystrokes * 100).toFixed(2);
+    if (!isNaN(accuracy)) {
+        document.querySelector(".info").children[accuracyDisplayIndex].innerText = accuracyDisplayInitialText + (correctKeystrokes/numberOfKeystrokes * 100).toFixed(1) + "%";
+    }
 }
