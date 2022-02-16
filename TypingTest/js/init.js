@@ -1,8 +1,8 @@
 window.onload = function() {
 
-    var timer = new CountdownTimer(10);
+    var timer = new CountdownTimer(60);
     var display = document.getElementById("timer");
-    var timeObj = CountdownTimer.parse(10);
+    var timeObj = CountdownTimer.parse(60);
 
     format(timeObj.minutes, timeObj.seconds);
 
