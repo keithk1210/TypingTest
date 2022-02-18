@@ -4,13 +4,21 @@ const outputContainer = document.querySelector(".output-container");
 var cells = new Array(numberOfRows);
 var rows = [];
 var currentWord = 0;
-const words = sentence1.replace("\n", " ").split(" ");
-
-for (let x = 0; x < numberOfRows; x++) {
-    cells[x] = new Array(cellsPerRow);
-}
+const modifiedSentence = sentence1.replace("\n", " ").replace(/\s+/g, ' ');
+const words = modifiedSentence.split(" ");
 
 
+
+class Row {
+    constructor(row, numCells, cellRow) {
+        this.row = row;
+        this.numCells = numCells;
+        this.cellRow = cellRow;
+    }
+    set setNumcells(numCells) {
+        this.numCells = numCells;
+    }
+ }
 
 function endTest() {
     if (this.expired()) {
@@ -20,11 +28,17 @@ function endTest() {
     }
 }
 
+for (let x = 0; x < numberOfRows; x++) {
+    cells[x] = new Array(cellsPerRow);
+}
+
+
 function terminateDisplay() {
     document.querySelector(".input-container").remove();
 }
 
-function prepareDisplay() {
+function prepareDisplayForTest() {
+    //adding
     const inputContainer = document.createElement("div");
     inputContainer.classList.add("input-container");
 
@@ -42,23 +56,26 @@ function prepareDisplay() {
 
     let accuracyDisplay = document.createElement("span");
     accuracyDisplay.innerText = accuracyDisplayInitialText;
-    document.getElementById("info").appendChild(accuracyDisplay);
 
-    document.querySelector(".info-msg-container").remove();
+    durationMenu.appendChild(timerDisplay);
+    durationMenu.appendChild(accuracyDisplay);
+    
+    let containers = document.querySelectorAll(".info-msg-container");
+    for (let i = 0 ; i < containers.length; i++) {
+        containers[i].remove();
+    }
+
+    //removing
+
+    for (let i = 0; i < durationButtons.length; i++) {
+        durationButtons[i].button.remove();
+    }
+
+    
+
 }
 
-class Row {
-    constructor(row, numCells, cellRow) {
-        this.row = row;
-        this.numCells = numCells;
-        this.cellRow = cellRow;
-    }
-    set setNumcells(numCells) {
-        this.numCells = numCells;
-    }
- }
-
-function initalizeDisplay() {
+function initalizeDisplayForTest() {
     cursor.style.height = root.getPropertyValue("--cursor-height");
     cursor.style.top = (input.offsetHeight/numberOfRows)/2 - (cursor.offsetHeight/2) + "px";
     cursor.style.width = input.offsetWidth/cellsPerRow + "px";
@@ -206,6 +223,6 @@ function displayOutput(wpm) {
 function updateAccuracy() {
     let accuracy = (correctKeystrokes/numberOfKeystrokes * 100).toFixed(2);
     if (!isNaN(accuracy)) {
-        document.querySelector(".info").children[accuracyDisplayIndex].innerText = accuracyDisplayInitialText + (correctKeystrokes/numberOfKeystrokes * 100).toFixed(1) + "%";
+        durationMenu.children[accuracyDisplayIndex].innerText = accuracyDisplayInitialText + (correctKeystrokes/numberOfKeystrokes * 100).toFixed(1) + "%";
     }
 }

@@ -19,9 +19,25 @@ class Coord {
 
 currentCell = new Coord(0,0);
 
+window.addEventListener("keydown",function(event) {
+    if(event.key.match(/\d/)) {
+        let input = parseInt(event.key) - 1;
+        if (input < durationButtons.length) {
+            for (let i = 0; i < durationButtons.length; i++) {
+                if (durationButtons[input].button === durationButtons[i].button) {
+                    duration = durationButtons[input].duration;
+                    durationButtons[input].button.style.background = root.getPropertyValue("--selected-color");
+                } else {
+                    durationButtons[i].button.style.background = root.getPropertyValue("--highlight-color");
+                }
+            }
+        }
+    }
+});
+
 function startGame() {
     window.addEventListener("keydown",function(event) {
-        console.log(cells[currentCell.y][currentCell.x].innerText);
+        console.log(userKeyInput);
         if(event.key == " ") {
             event.preventDefault();
           }
@@ -33,6 +49,7 @@ function startGame() {
                     userKeyInput.pop();
                 }
             } else if (event.key.length == 1 && ((event.key != " " && !currentCellIsEmptySpace()) || (event.key == " " && currentCellIsEmptySpace()))) {
+                userKeyInput.push(event.key);
                 if (event.key != " ") {
                     numberOfKeystrokes++;
                 }
@@ -42,7 +59,6 @@ function startGame() {
                 } else {
                     checkIfCorrect(event);
                     advanceThroughSentence();
-                    userKeyInput.push(event.key);
                 }
             }
             updateAccuracy();
@@ -53,7 +69,7 @@ function startGame() {
 
 function checkIfCorrect(event) {
     if (cells[currentCell.y][currentCell.x].innerText == event.key.trim() && event.key != " ") {
-        cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--correct-color");
+        cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--highlight-color");
         correctKeystrokes++;
     } else if ((event.key != "Shift" && event.key != "Backspace" && event.key != " ")) {
         cells[currentCell.y][currentCell.x].style.color = root.getPropertyValue("--incorrect-color");

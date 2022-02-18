@@ -1,5 +1,5 @@
 var comparison = "";
-const chars = sentence1.split("");
+const chars = modifiedSentence.split("");
 
 
 function calculateWPM() {
@@ -8,9 +8,11 @@ function calculateWPM() {
     let tempCorrectCharacters = 0;
     let wpm = 0;
     for (let i = 0; i < userKeyInput.length; i++) {
-        if (chars[i] == " " || chars[i] == "\n") {
+        console.log(chars[i] + " == " + userKeyInput[i] + " current word " + words[currentWord]);
+        if (chars[i] == " ") {
             if (tempCorrectCharacters == words[currentWord].length) {
                 wpm++;
+                console.log("wpm++");
             }
             tempCorrectCharacters = 0;
             currentWord++;
@@ -19,5 +21,5 @@ function calculateWPM() {
             tempCorrectCharacters++;
         }
     }
-    displayOutput(wpm);
+    displayOutput(wpm/(duration/60));
 }

@@ -6,7 +6,8 @@
     --default-color: black;
     --cursor-color: gray;
     --cursor-height: 50px;
-    --hightlight-color: #6495ED;
+    --highlight-color: #6495ED;
+    --selected-color: #a9bfe7;
 }
 
 * {
@@ -46,8 +47,6 @@
 }
 .info-msg-container {
     text-align: center;
-    background: var(--hightlight-color);
-    border-radius: 10px;
     width: 250px;
     padding: 10px 5px;
     margin: auto;
@@ -55,6 +54,9 @@
 .info-msg {
     cursor: pointer;
     margin: auto;
+    color: rgb(70, 66, 66);
+    font-style: italic;
+    font-family: FontFabricBold;
 }
 .row {
     border-bottom: 1px solid black;
@@ -105,6 +107,7 @@
     height: 100px;
     width: 100px;
     transition: transform 0.3s;
+    border-radius: 5px;
 }
 .input-container {
     height: 80vh;
@@ -120,7 +123,7 @@
 .input-container-active {
     display: flex;
 }
-.info {
+.time-info-container {
     text-align: center;
     width: 100%;
     margin: auto;
@@ -129,13 +132,18 @@
     display: flex;
     justify-content: center;
 }
-.info span {
-    background: var(--hightlight-color);
+.time-info-container span {
+    background: var(--highlight-color);
     border-radius: 10px;
     padding: 10px 10px;
     font-family: FontFabricBold;
     margin: 0 5px;
 }
+.duration-button {
+    cursor: pointer;
+    transition: background 0.5s;
+}
+
 
 /*OUTPUT*/
 .output-container {
@@ -150,7 +158,7 @@
     align-items: center;
 }
 .output-header {
-    background-color: var(--hightlight-color);
+    background-color: var(--highlight-color);
     border-radius: 10px;
     padding: 5px 10px;
     text-align: center;
