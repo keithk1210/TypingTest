@@ -7,6 +7,7 @@ class DurationButton {
 
 var duration;
 var timer;
+var timeObj;
 
 window.onload = function() {
 
@@ -35,19 +36,36 @@ window.onload = function() {
         durationMenu.appendChild(durationButtons[i].button);
     }
 
+    for (let i = 0; i < texts.length; i++) {
+        let newListItem = document.createElement("li");
+        texts[i].setButton = newListItem;
+        newListItem.innerText = texts[i].author + " - " + texts[i].title;
+        newListItem.onclick = function() {
+            text = texts[i].content;
+            for (let i = 0; i < texts.length; i++) {
+                if (newListItem == texts[i].button) {
+                    texts[i].button.classList.add("listbox-item-selected");
+                } else {
+                    texts[i].button.classList.remove("listbox-item-selected");
+                }
+            }
+        }
+        document.getElementById("texts-list").appendChild(newListItem);
+    }
+
     window.addEventListener("keydown", function (event) { 
-        if (typeof timer === 'undefined') {
-            var timer = new CountdownTimer(duration);
-            var timeObj = CountdownTimer.parse(duration);
+        if (typeof timer == 'undefined') {
+            timer = new CountdownTimer(999);
+            timeObj = CountdownTimer.parse(999);
             format(timeObj.minutes, timeObj.seconds);
             timer.onTick(format).onTick(endTest);
         }
-        if (typeof duration === 'undefined') {
+        if (!varsReady() && event.key == "Enter") {
             document.getElementById("start-instructions").style.color = root.getPropertyValue("--incorrect-color");
-            document.getElementById("start-instructions").innerText = "Please select a test duration.";
+            document.getElementById("start-instructions").innerText = "Please select a test duration and text, then press enter.";
             return;
         }
-        if (event.key == "Enter" && timer.expired()) {
+        if (event.key == "Enter" && timer.expired() && varsReady()) {
             prepareDisplayForTest();
             initalizeDisplayForTest();
             writeIntialWords();
@@ -62,4 +80,8 @@ window.onload = function() {
         seconds = seconds < 10 ? "0" + seconds : seconds;
         timerDisplay.textContent = minutes + ':' + seconds;
     }
+}
+
+function varsReady() {
+    return typeof timer != 'undefined' && typeof text != 'undefined';
 }

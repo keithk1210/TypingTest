@@ -7,7 +7,7 @@
     --cursor-color: gray;
     --cursor-height: 50px;
     --highlight-color: #6495ED;
-    --selected-color: #a9bfe7;
+    --selected-color: #ADD8E6;
 }
 
 * {
@@ -143,7 +143,51 @@
     cursor: pointer;
     transition: background 0.5s;
 }
+/*LIST OF TEXTS*/
+.listbox-area {
+    display: grid;
+    grid-template-areas: 
+    "a"
+    "b";
+    padding: 20px;
+    border-radius: 10px;
+    background: #eee;
+    margin: auto;
+    width: 300px;
+    margin-top: 20px;
+}
 
+[role="option"] {
+    position: relative;
+    display: block;
+    padding: 0 1em 0 1.5em;
+    line-height: 1.8em;
+}
+
+.listbox {
+    padding: 0;
+    max-height: 18em;
+    border: 1px solid rgb(100, 100, 100);
+    background: white;
+    overflow: hidden;
+    overflow-y: scroll;
+    grid-area: b;
+    margin-top: 10px;
+    margin-bottom: 0px;
+}
+.listbox li {
+    padding: 10px 10px;
+    cursor: pointer;
+    transition: background 0.5s;
+}
+.listbox-item-selected {
+    background: var(--highlight-color);
+}
+
+.listbox-label {
+    grid-area: a; 
+    margin: auto;
+}
 
 /*OUTPUT*/
 .output-container {

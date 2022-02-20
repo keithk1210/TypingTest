@@ -1,37 +1,32 @@
 const inputContainer = document.querySelector(".input-container");
 const outputContainer = document.querySelector(".output-container");
 
-var cells = new Array(numberOfRows);
 var rows = [];
 var currentWord = 0;
-const modifiedSentence = sentence1.replace("\n", " ").replace(/\s+/g, ' ');
-const words = modifiedSentence.split(" ");
-
+var text;
+var fixedText;
+var words;
 
 
 class Row {
-    constructor(row, numCells, cellRow) {
+    constructor(row) {
         this.row = row;
-        this.numCells = numCells;
-        this.cellRow = cellRow;
+        this.cells = [];
+
+        this.addNewCell = function (newObject) {
+            this.cells.push(newObject);
+        };
     }
-    set setNumcells(numCells) {
-        this.numCells = numCells;
-    }
+    
  }
 
 function endTest() {
     if (this.expired()) {
-        console.log("test ended");
+        //console.log("test ended");
         terminateDisplay();
         calculateWPM();
     }
 }
-
-for (let x = 0; x < numberOfRows; x++) {
-    cells[x] = new Array(cellsPerRow);
-}
-
 
 function terminateDisplay() {
     document.querySelector(".input-container").remove();
@@ -64,6 +59,7 @@ function prepareDisplayForTest() {
     for (let i = 0 ; i < containers.length; i++) {
         containers[i].remove();
     }
+    listboxArea.remove();
 
     //removing
 
@@ -80,7 +76,7 @@ function initalizeDisplayForTest() {
     cursor.style.top = (input.offsetHeight/numberOfRows)/2 - (cursor.offsetHeight/2) + "px";
     cursor.style.width = input.offsetWidth/cellsPerRow + "px";
     for (let y = 0; y < numberOfRows; y++) {
-        let newRow = createNewRow(y);
+        let newRow = createNewRowAtIndex(y);
         newRow.row.style.top = input.offsetHeight/3 * y + "px"; 
         input.appendChild(newRow.row);
         rows[y] = newRow;
@@ -90,12 +86,9 @@ function initalizeDisplayForTest() {
 
 function addNewRow() {
 
-    cells.shift();
-    cells.push(new Array(cellsPerRow));
-
     rows[0].row.remove();
     rows.shift();
-    let newRow = createNewRow(numberOfRows-1);
+    let newRow = createNewRowAtIndex(numberOfRows-1);
     newRow.row.style.top = input.offsetHeight + "px";
     rows[numberOfRows-1] = newRow;
     input.appendChild(newRow.row);
@@ -111,12 +104,12 @@ function addNewRow() {
             }
         }
     }, 100);
-    
+    //console.log(words[currentWord] + " " + currentWord);
     for (let x = 0; x < cellsPerRow; x++) {
         if (currentWord < words.length) {
             if ((x + words[currentWord].length < cellsPerRow)) {
                 for (let i = 0; i < words[currentWord].length; i++) {
-                    cells[numberOfRows-1][x].innerText = words[currentWord].charAt(i);
+                    newRow.cells[x].innerText = words[currentWord].charAt(i);
                     x++;
                 }
                 currentWord++;
@@ -125,33 +118,81 @@ function addNewRow() {
     }
 
     readjustHeight();
-    trimLast();
+    //console.log(rows);
+    trim();
+
 }
 
-function createNewRow(y) {
+function goBackOneRow() {
+
+    rows[rows.length-1].row.remove();
+    rows.pop();
+    let newRow = createNewRowAtIndex(0);
+    newRow.row.style.top = -input.offsetHeight/numberOfRows + "px";
+    rows.unshift(newRow);
+    input.appendChild(newRow.row);
+    
+    setTimeout(function() {
+        for (let i = 0; i < rows.length; i++) {
+            if (hypotheticalCursorY < 1 || i == 0) {
+                rows[i].row.style.transform = "translateY(" + (input.offsetHeight/numberOfRows) + "px)";
+            } else {
+                let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("(") + 1,  rows[i].row.style.transform.indexOf("p"));
+                let newTranslateY = parseFloat(prevTranslateY) + (input.offsetHeight/numberOfRows);
+                rows[i].row.style.transform = "translateY(" +  newTranslateY + "px)";
+            }
+        }
+    }, 100);
+    
+    for (let x = cellsPerRow-1; x >= 0; x--) {
+        if (x == cellsPerRow-1) {
+            continue;
+        }
+        if (currentWord < words.length && currentWord >= 0) {
+                for (let i = words[currentWord].length-1; i >= 0; i--) {
+                    newRow.cells[x].innerText = words[currentWord].charAt(i);
+                    //console.log(newRow.cells[x]);
+                    x--;
+                }
+                //console.log("current word " + words[currentWord] + " " + currentWord);
+                if (currentWord > 0) {
+                    currentWord--;
+                }
+            }
+        }
+
+    readjustHeight();
+    trim();
+}
+
+function createNewRowAtIndex(index) {
     let newRow = document.createElement("div");
     let newRowP = document.createElement("p");
     newRow.style.height = input.offsetHeight/numberOfRows + "px";
     newRow.classList.add("row");
     newRowP.classList.add("row-p");
     newRow.appendChild(newRowP);
+    let rowObject = new Row(newRow);
 
     for (let x = 0; x < cellsPerRow; x++) {
         let newCharacter = document.createElement("span");
         newCharacter.classList.add("character");
         newRowP.appendChild(newCharacter);
-        cells[y][x] = newCharacter;
+        rowObject.addNewCell(newCharacter);
     }
-    return new Row(newRow, cellsPerRow, cells[y]);
+
+    return rowObject;
 }
 
 function writeIntialWords() {
+    fixedText = text.replace("\n", " ").replace(/\s+/g, ' ');
+    words = fixedText.split(" ");
     for (let y = 0; y < numberOfRows; y++) {   
         for (let x = 0; x < cellsPerRow; x++) {
             if (currentWord < words.length) {
                 if ((x + words[currentWord].length < cellsPerRow)) {
                     for (let i = 0; i < words[currentWord].length; i++) {
-                        cells[y][x].innerText = words[currentWord].charAt(i);
+                        rows[y].cells[x].innerText = words[currentWord].charAt(i);
                         x++;
                     }
                     currentWord++;
@@ -163,40 +204,54 @@ function writeIntialWords() {
 }
 
 function trim() {
+    //trims all trailing whitespace but one
     for (let y = 0; y < numberOfRows; y ++) {
-        let x = cellsPerRow-1;
-        while(!(cells[y][x-1].innerText) && x-1 > 0) {
-            cells[y][x].remove();
-            rows[y].setNumcells = rows[y].numCells - 1;
+        let x = rows[y].cells.length-1;
+        while(rows[y].cells[x-1].innerText == "" && x-1 > 0) {
+            rows[y].cells[x].remove();
+            rows[y].cells.pop();
             x--;
         }
     }
-    //readjusts width after trim
+    
+    //trims all leading whitespace
     for (let y = 0; y < numberOfRows; y++) {
-        for (let x = 0 ; x < rows[y].numCells; x++) {
-            cells[y][x].style.width = input.offsetWidth/rows[y].numCells + "px";
+        let x = 0;
+        while(rows[y].cells[x].innerText == "" && x < rows[y].cells.length) {
+            rows[y].cells[x].remove();
+            rows[y].cells.pop();
+            x++;
+        }
+    }
+    
+    for (let y = 0; y < numberOfRows; y++) {
+        for (let x = 0 ; x < rows[y].numberOfCells; x++) {
+            rows[y].cells[x].style.width = input.offsetWidth/rows[y].cells.length + "px";
         }
     }  
 }
 
-function trimLast() {
+/*
+function trimRowAtIndex(index) {
         let x = cellsPerRow-1;
-        while(!(cells[numberOfRows-1][x-1].innerText) && x-1 > 0) {
-            cells[numberOfRows-1][x].remove();
-            rows[numberOfRows-1].setNumcells = rows[numberOfRows-1].numCells - 1;
+        while(!(rows[index].cells[x-1].innerText) && x-1 > 0) {
+            //console.log("removed");
+            rows[index].cells[x].remove();
+            rows[index].cells.pop();
             x--;
         }
     //readjusts width after trim
-        for (let x = 0 ; x < rows[numberOfRows-1].numCells; x++) {
-            cells[numberOfRows-1][x].style.width = input.offsetWidth/rows[numberOfRows-1].numCells + "px";
+        for (let x = 0 ; x < rows[index].cells.length; x++) {
+            rows[index].cells[x].style.width = input.offsetWidth/rows[index].cells.length + "px";
         }
 }
+*/
 
 function readjustHeight() {
     for (let y = 0; y < numberOfRows; y++) {
-        for (let x = 0 ; x < rows[y].numCells; x++) {
-            //console.log(rows[y].row.offsetHeight);
-            cells[y][x].style.lineHeight = rows[y].row.offsetHeight + "px";
+        for (let x = 0 ; x < rows[y].cells.length; x++) {
+            ////console.log(rows[y].row.offsetHeight);
+            rows[y].cells[x].style.lineHeight = rows[y].row.offsetHeight + "px";
         }
     }  
 }

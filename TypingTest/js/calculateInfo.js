@@ -1,8 +1,9 @@
 var comparison = "";
-const chars = modifiedSentence.split("");
+
 
 
 function calculateWPM() {
+    const chars = fixedText.split("");
     let currentWord = 0;
     let totalCorrectCharacters = 0;
     let tempCorrectCharacters = 0;
