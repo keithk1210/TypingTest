@@ -67,8 +67,9 @@ window.onload = function() {
         }
         if (event.key == "Enter" && timer.expired() && varsReady()) {
             prepareDisplayForTest();
-            initalizeDisplayForTest();
             writeIntialWords();
+            initializeDisplayForTest();
+            
             trim();
             timer.start();
             startGame();

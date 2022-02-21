@@ -42,9 +42,9 @@ function startGame() {
           }
         if (isPermittedKey(event.key)) {
             if (event.key == "Backspace") {
-                rows[currentCell.y].cells[currentCell.x].style.color = root.getPropertyValue("--default-color");
+                rows[hypotheticalCursorY].cells[currentCell.x].style.color = root.getPropertyValue("--default-color");
                 goBackOne();
-                if (currentCell.x == rows[currentCell.y].cells.length-1 && hypotheticalCursorY > 0) {
+                if (currentCell.x == rows[hypotheticalCursorY].cells.length-1 && hypotheticalCursorY > 0) {
                         moveCurrentWordBackward();
                         goBackOneRow();
                 }
@@ -56,9 +56,8 @@ function startGame() {
                 if (event.key != " ") {
                     numberOfKeystrokes++;
                 }
-                if (currentCell.x == rows[currentCell.y].cells.length-1 && hypotheticalCursorY > 0) {
+                if (currentCell.x == rows[hypotheticalCursorY].cells.length-1 && hypotheticalCursorY > 0) {
                     advanceThroughSentence();
-                    moveCurrentWordForward();
                     addNewRow();
                 } else {
                     checkIfCorrect(event);
@@ -72,19 +71,19 @@ function startGame() {
 }
 
 function checkIfCorrect(event) {
-    if (rows[currentCell.y].cells[currentCell.x].innerText == event.key.trim() && event.key != " ") {
-        rows[currentCell.y].cells[currentCell.x].style.color = root.getPropertyValue("--highlight-color");
+    if (rows[hypotheticalCursorY].cells[currentCell.x].innerText == event.key.trim() && event.key != " ") {
+        rows[hypotheticalCursorY].cells[currentCell.x].style.color = root.getPropertyValue("--highlight-color");
         correctKeystrokes++;
     } else if ((event.key != "Shift" && event.key != "Backspace" && event.key != " ")) {
-        rows[currentCell.y].cells[currentCell.x].style.color = root.getPropertyValue("--incorrect-color");
+        rows[hypotheticalCursorY].cells[currentCell.x].style.color = root.getPropertyValue("--incorrect-color");
     }
 }
 
 function redrawCursor() {
-    let xUnit = input.offsetWidth/rows[currentCell.y].cells.length;
-    let yUnit = input.offsetHeight/numberOfRows;
+    let xUnit = input.offsetWidth/rows[hypotheticalCursorY].cells.length;
+    let yUnit = input.offsetHeight/numberOfVisibleRows;
     cursor.style.height = root.getPropertyValue("--cursor-height");
-    cursor.style.top = (input.offsetHeight/numberOfRows)/2 - (cursor.offsetHeight/2) + "px";
+    cursor.style.top = (input.offsetHeight/numberOfVisibleRows)/2 - (cursor.offsetHeight/2) + "px";
     cursor.style.width = xUnit + "px";
     cursor.style.transform = "translateX(" + currentCell.x * xUnit + "px)";
     cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
@@ -92,10 +91,10 @@ function redrawCursor() {
 
 function advanceThroughSentence() {
     currentCell.setX = currentCell.x + 1;
-    if (currentCell.x === rows[currentCell.y].cells.length) {
+    if (currentCell.x === rows[hypotheticalCursorY].cells.length) {
         currentCell.setX = 0;
-        if (currentCell.y != (numberOfRows-1)/2) {
-            currentCell.setY = currentCell.y + 1;
+        if (currentCell.y != (numberOfVisibleRows-1)/2) {
+            currentCell.setY = hypotheticalCursorY + 1;
         }
         hypotheticalCursorY++;
     }
@@ -103,13 +102,13 @@ function advanceThroughSentence() {
 
 function goBackOne() {
     if (currentCell.x == 0) {
-        if (currentCell.y == 1 && hypotheticalCursorY == 1) {
+        if (hypotheticalCursorY == 1 && hypotheticalCursorY == 1) {
             hypotheticalCursorY--;
-            currentCell.setY = currentCell.y - 1;
-            currentCell.setX = rows[currentCell.y].cells.length-1;
-        } else if (currentCell.y > 0) {
+            currentCell.setY = hypotheticalCursorY - 1;
+            currentCell.setX = rows[hypotheticalCursorY].cells.length-1;
+        } else if (hypotheticalCursorY > 0) {
             hypotheticalCursorY--;
-            currentCell.setX = rows[currentCell.y].cells.length-1;
+            currentCell.setX = rows[hypotheticalCursorY].cells.length-1;
             //////console.log("x " + currentCell.x + "");
         } 
     } else {
@@ -118,12 +117,12 @@ function goBackOne() {
 }
 //functions for readability
 function currentCellIsEmptySpace() {
-    return rows[currentCell.y].cells[currentCell.x].innerText == "" || rows[currentCell.y].cells[currentCell.x].innerText == "\n";
+    return rows[hypotheticalCursorY].cells[currentCell.x].innerText == "" || rows[hypotheticalCursorY].cells[currentCell.x].innerText == "\n";
 }
 
 function moveCurrentWordBackward() {
     currentWord--;
-    for (let i = numberOfRows-1; i >= 0; i--) {
+    for (let i = numberOfVisibleRows-1; i >= 0; i--) {
         for (let x = rows[i].cells.length-1; x >= 0; x--) {
             if (rows[i].cells[x].innerText == "") {
                 //console.log("current word " + words[currentWord] + " " + currentWord);
@@ -135,17 +134,31 @@ function moveCurrentWordBackward() {
 }
 
 function moveCurrentWordForward() {
-    let x = rows[numberOfRows-1].cells.length-2;
-    let i = words[currentWord].length - 1;
+    var previousWord;
+    if (currentWord > 0) {
+        previousWord = currentWord-1;
+    } else {
+        previousWord = currentWord;
+    }
+    let x = rows[numberOfVisibleRows-1].cells.length-2;
+    let i = words[previousWord].length - 1;
     while (true) {
-        console.log(rows[numberOfRows-1].cells[x].innerText + " == " + words[currentWord].charAt(i) + " word: " + words[currentWord]);
-        if (rows[numberOfRows-1].cells[x].innerText != words[currentWord].charAt(i)) {
-            console.log("does not match " + words[currentWord]);
+        //console.log(rows[numberOfVisibleRows-1].cells[x].innerText + " == " + words[currentWord-1].charAt(i) + " word: " + words[currentWord-1] + " i = " + i);
+        if (rows[numberOfVisibleRows-1].cells[x].innerText != words[previousWord].charAt(i)) {
             break;
         } else if (i == 0){
             return;
         }
         x--;
         i--;
+    }
+    for (let y = 0; y < numberOfVisibleRows; y++) {
+        for (let x = 0; x < rows[y].cells.length; x++) {
+            if (rows[y].cells[x].innerText == "") {
+                console.log(rows[y].cells[x]);
+                console.log("currentword " + currentWord + " " + words[currentWord]);
+                currentWord++;
+            }
+        }
     }
 }

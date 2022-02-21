@@ -1,5 +1,5 @@
 //numbers
-const numberOfRows = 3;
+const numberOfVisibleRows = 3;
 const cellsPerRow = 25;
 const accuracyDisplayIndex = 1;
 //html elements

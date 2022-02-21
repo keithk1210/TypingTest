@@ -11,11 +11,15 @@ var words;
 class Row {
     constructor(row) {
         this.row = row;
+        this.words = [];
         this.cells = [];
-
         this.addNewCell = function (newObject) {
             this.cells.push(newObject);
+            this.row.children[0].appendChild(newObject);
         };
+        this.addNewWord = function (newObject) {
+            this.words.push(newObject);
+        }
     }
     
  }
@@ -71,141 +75,116 @@ function prepareDisplayForTest() {
 
 }
 
-function initalizeDisplayForTest() {
+function initializeDisplayForTest() {
     cursor.style.height = root.getPropertyValue("--cursor-height");
-    cursor.style.top = (input.offsetHeight/numberOfRows)/2 - (cursor.offsetHeight/2) + "px";
+    cursor.style.top = (input.offsetHeight/numberOfVisibleRows)/2 - (cursor.offsetHeight/2) + "px";
     cursor.style.width = input.offsetWidth/cellsPerRow + "px";
-    for (let y = 0; y < numberOfRows; y++) {
-        let newRow = createNewRowAtIndex(y);
-        newRow.row.style.top = input.offsetHeight/3 * y + "px"; 
-        input.appendChild(newRow.row);
-        rows[y] = newRow;
+    for (let y = 0; y < numberOfVisibleRows; y++) {
+        makeVisibleRow(y,y);
     }
     readjustHeight();
 }
 
 function addNewRow() {
 
-    rows[0].row.remove();
-    rows.shift();
-    let newRow = createNewRowAtIndex(numberOfRows-1);
-    newRow.row.style.top = input.offsetHeight + "px";
-    rows[numberOfRows-1] = newRow;
-    input.appendChild(newRow.row);
+    //at this point, hypothetical cursor y == the row at numberOfVisibleRows-1
+    rows[hypotheticalCursorY-2].row.remove();
+    makeVisibleRow(hypotheticalCursorY+1,numberOfVisibleRows);
+    console.log("called");
     
     setTimeout(function() {
-        for (let i = 0; i < rows.length; i++) {
-            if (hypotheticalCursorY == 2 || i == rows.length - 1) {
-                rows[i].row.style.transform = "translateY(" + (-input.offsetHeight/numberOfRows) + "px)";
+        for (let i = hypotheticalCursorY-1; i < (hypotheticalCursorY - 1) + numberOfVisibleRows; i++) {
+            if (i == hypotheticalCursorY - 1 + numberOfVisibleRows-1 || hypotheticalCursorY == 2) {
+                rows[i].row.style.transform = "translateY(" + (-input.offsetHeight/numberOfVisibleRows) + "px)";
             } else {
                 let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("-") + 1,  rows[i].row.style.transform.indexOf("p"));
-                let newTranslateY = -parseFloat(prevTranslateY) + (-input.offsetHeight/numberOfRows);
+                let newTranslateY = -parseFloat(prevTranslateY) + (-input.offsetHeight/numberOfVisibleRows);
                 rows[i].row.style.transform = "translateY(" +  newTranslateY + "px)";
             }
         }
     }, 100);
-    //console.log(words[currentWord] + " " + currentWord);
-    for (let x = 0; x < cellsPerRow; x++) {
-        if (currentWord < words.length) {
-            if ((x + words[currentWord].length < cellsPerRow)) {
-                for (let i = 0; i < words[currentWord].length; i++) {
-                    newRow.cells[x].innerText = words[currentWord].charAt(i);
-                    x++;
-                }
-                currentWord++;
-            }
-        }
-    }
-
+   
     readjustHeight();
-    //console.log(rows);
-    trim();
 
 }
 
 function goBackOneRow() {
 
-    rows[rows.length-1].row.remove();
-    rows.pop();
-    let newRow = createNewRowAtIndex(0);
-    newRow.row.style.top = -input.offsetHeight/numberOfRows + "px";
-    rows.unshift(newRow);
-    input.appendChild(newRow.row);
+    rows[hypotheticalCursorY+2].row.remove();
+    rows[hypotheticalCursorY-1].row.style.top = -input.offsetHeight/numberOfVisibleRows * 2 + "px";
+    input.appendChild(rows[hypotheticalCursorY-1].row);
     
     setTimeout(function() {
-        for (let i = 0; i < rows.length; i++) {
-            if (hypotheticalCursorY < 1 || i == 0) {
-                rows[i].row.style.transform = "translateY(" + (input.offsetHeight/numberOfRows) + "px)";
-            } else {
-                let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("(") + 1,  rows[i].row.style.transform.indexOf("p"));
-                let newTranslateY = parseFloat(prevTranslateY) + (input.offsetHeight/numberOfRows);
-                rows[i].row.style.transform = "translateY(" +  newTranslateY + "px)";
+        for (let i= hypotheticalCursorY-1; i < hypotheticalCursorY-1+numberOfVisibleRows; i++) {
+            if (i == hypotheticalCursorY-1) {
+                rows[i].row.style.transform = "translateY(" +  (input.offsetHeight/numberOfVisibleRows) + "px)";
             }
+            let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("(") + 1,  rows[i].row.style.transform.indexOf("p"));
+            let newTranslateY = parseFloat(prevTranslateY) + (input.offsetHeight/numberOfVisibleRows);
+            rows[i].row.style.transform = "translateY(" +  newTranslateY + "px)";
         }
     }, 100);
-    
-    for (let x = cellsPerRow-1; x >= 0; x--) {
-        if (x == cellsPerRow-1) {
-            continue;
-        }
-        if (currentWord < words.length && currentWord >= 0) {
-                for (let i = words[currentWord].length-1; i >= 0; i--) {
-                    newRow.cells[x].innerText = words[currentWord].charAt(i);
-                    //console.log(newRow.cells[x]);
-                    x--;
-                }
-                //console.log("current word " + words[currentWord] + " " + currentWord);
-                if (currentWord > 0) {
-                    currentWord--;
-                }
-            }
-        }
 
     readjustHeight();
-    trim();
 }
 
-function createNewRowAtIndex(index) {
+function createNewRow() {
     let newRow = document.createElement("div");
     let newRowP = document.createElement("p");
-    newRow.style.height = input.offsetHeight/numberOfRows + "px";
+    newRow.style.height = input.offsetHeight/numberOfVisibleRows + "px";
     newRow.classList.add("row");
     newRowP.classList.add("row-p");
     newRow.appendChild(newRowP);
     let rowObject = new Row(newRow);
 
-    for (let x = 0; x < cellsPerRow; x++) {
-        let newCharacter = document.createElement("span");
-        newCharacter.classList.add("character");
-        newRowP.appendChild(newCharacter);
-        rowObject.addNewCell(newCharacter);
-    }
-
     return rowObject;
+}
+
+function makeVisibleRow(index,positionOnScreen) {
+    for (let x = 0; x < rows[index].words.length; x++) {
+        for (let i = 0; i < rows[index].words[x].length; i++) {
+            let newCharacter = document.createElement("span");
+            newCharacter.classList.add("character");
+            newCharacter.innerText = rows[index].words[x].charAt(i);
+            rows[index].addNewCell(newCharacter);
+            if (i >= rows[index].words[x].length-1) {
+                let space = document.createElement("span");
+                space.classList.add("character");
+                space.innerText = " ";
+                rows[index].addNewCell(space);
+            }
+        }
+    }
+    rows[index].row.style.top = (input.offsetHeight/numberOfVisibleRows) * positionOnScreen + "px";
+    input.appendChild(rows[index].row);
 }
 
 function writeIntialWords() {
     fixedText = text.replace("\n", " ").replace(/\s+/g, ' ');
     words = fixedText.split(" ");
-    for (let y = 0; y < numberOfRows; y++) {   
+    var done = false;
+    let currentWord = 0;
+    let y = 0;
+    while(currentWord < words.length) {   
+        let newRow = createNewRow();
         for (let x = 0; x < cellsPerRow; x++) {
-            if (currentWord < words.length) {
+            if (currentWord < words.length && currentWord >= 0) {
                 if ((x + words[currentWord].length < cellsPerRow)) {
-                    for (let i = 0; i < words[currentWord].length; i++) {
-                        rows[y].cells[x].innerText = words[currentWord].charAt(i);
-                        x++;
-                    }
+                    newRow.addNewWord(words[currentWord]);
+                    x += words[currentWord].length;
                     currentWord++;
                 }
                 
             }
         }
+        rows[y] = newRow;
+        y++;
     }
 }
 
 function trim() {
     //trims all trailing whitespace but one
-    for (let y = 0; y < numberOfRows; y ++) {
+    for (let y = 0; y < numberOfVisibleRows; y ++) {
         let x = rows[y].cells.length-1;
         while(rows[y].cells[x-1].innerText == "" && x-1 > 0) {
             rows[y].cells[x].remove();
@@ -215,7 +194,7 @@ function trim() {
     }
     
     //trims all leading whitespace
-    for (let y = 0; y < numberOfRows; y++) {
+    for (let y = 0; y < numberOfVisibleRows; y++) {
         let x = 0;
         while(rows[y].cells[x].innerText == "" && x < rows[y].cells.length) {
             rows[y].cells[x].remove();
@@ -224,7 +203,7 @@ function trim() {
         }
     }
     
-    for (let y = 0; y < numberOfRows; y++) {
+    for (let y = 0; y < numberOfVisibleRows; y++) {
         for (let x = 0 ; x < rows[y].numberOfCells; x++) {
             rows[y].cells[x].style.width = input.offsetWidth/rows[y].cells.length + "px";
         }
@@ -248,9 +227,9 @@ function trimRowAtIndex(index) {
 */
 
 function readjustHeight() {
-    for (let y = 0; y < numberOfRows; y++) {
+    console.log("called");
+    for (let y = hypotheticalCursorY; y < hypotheticalCursorY + numberOfVisibleRows; y++) {
         for (let x = 0 ; x < rows[y].cells.length; x++) {
-            ////console.log(rows[y].row.offsetHeight);
             rows[y].cells[x].style.lineHeight = rows[y].row.offsetHeight + "px";
         }
     }  
