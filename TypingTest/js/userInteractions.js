@@ -1,23 +1,6 @@
-var currentCell;
 var userKeyInput = [];
-var hypotheticalCursorY = 0;
 var numberOfKeystrokes = 0;
 var correctKeystrokes = 0;
-
-class Coord {
-    constructor(x,y) {
-        this.x = x;
-        this.y = y;
-    }
-    set setX(x) {
-        this.x = x;
-    }
-    set setY(y) {
-        this.y = y;
-    }
-}
-
-currentCell = new Coord(0,0);
 
 window.addEventListener("keydown",function(event) {
     if(event.key.match(/\d/)) {
@@ -42,21 +25,21 @@ function startGame() {
           }
         if (isPermittedKey(event.key)) {
             if (event.key == "Backspace") {
-                rows[hypotheticalCursorY].cells[currentCell.x].style.color = root.getPropertyValue("--default-color");
+                rows[cursor.lineInText].cells[cursor.position.x].style.color = root.getPropertyValue("--default-color");
                 goBackOne();
-                if (currentCell.x == rows[hypotheticalCursorY].cells.length-1 && hypotheticalCursorY > 0) {
-                        moveCurrentWordBackward();
+                if (cursor.position.x == rows[cursor.lineInText].cells.length-1 && cursor.lineInText > 0) { //after moving back one, checks if you have now gone back to the prev row
                         goBackOneRow();
                 }
                 if (userKeyInput.length > 0) {
                     userKeyInput.pop();
                 }
-            } else if (event.key.length == 1 && ((event.key != " " && !currentCellIsEmptySpace()) || (event.key == " " && currentCellIsEmptySpace()))) {
+            } else if (event.key.length == 1 && ((event.key != " " && !cursor.isOnEmptySpace()) 
+            || (event.key == " " && cursor.isOnEmptySpace()))) {
                 userKeyInput.push(event.key);
                 if (event.key != " ") {
                     numberOfKeystrokes++;
                 }
-                if (currentCell.x == rows[hypotheticalCursorY].cells.length-1 && hypotheticalCursorY > 0) {
+                if (cursor.position.x == rows[cursor.lineInText].cells.length-1 && cursor.lineInText > 0) {
                     advanceThroughSentence();
                     addNewRow();
                 } else {
@@ -64,62 +47,48 @@ function startGame() {
                     advanceThroughSentence();
                 }
             }
-            updateAccuracy();
-            redrawCursor();
+            calculateAccuracyAndUpdateDisplay();
+            cursor.redraw();
         }
     });
 }
 
 function checkIfCorrect(event) {
-    if (rows[hypotheticalCursorY].cells[currentCell.x].innerText == event.key.trim() && event.key != " ") {
-        rows[hypotheticalCursorY].cells[currentCell.x].style.color = root.getPropertyValue("--highlight-color");
+    if (rows[cursor.lineInText].cells[cursor.position.x].innerText == event.key.trim() && event.key != " ") {
+        rows[cursor.lineInText].cells[cursor.position.x].style.color = root.getPropertyValue("--highlight-color");
         correctKeystrokes++;
     } else if ((event.key != "Shift" && event.key != "Backspace" && event.key != " ")) {
-        rows[hypotheticalCursorY].cells[currentCell.x].style.color = root.getPropertyValue("--incorrect-color");
+        rows[cursor.lineInText].cells[cursor.position.x].style.color = root.getPropertyValue("--incorrect-color");
     }
 }
 
-function redrawCursor() {
-    let xUnit = input.offsetWidth/rows[hypotheticalCursorY].cells.length;
-    let yUnit = input.offsetHeight/numberOfVisibleRows;
-    cursor.style.height = root.getPropertyValue("--cursor-height");
-    cursor.style.top = (input.offsetHeight/numberOfVisibleRows)/2 - (cursor.offsetHeight/2) + "px";
-    cursor.style.width = xUnit + "px";
-    cursor.style.transform = "translateX(" + currentCell.x * xUnit + "px)";
-    cursor.style.transform += "translateY(" + currentCell.y * yUnit + "px)";
-}
-
 function advanceThroughSentence() {
-    currentCell.setX = currentCell.x + 1;
-    if (currentCell.x === rows[hypotheticalCursorY].cells.length) {
-        currentCell.setX = 0;
-        if (currentCell.y != (numberOfVisibleRows-1)/2) {
-            currentCell.setY = hypotheticalCursorY + 1;
+    cursor.setScreenX = cursor.position.x + 1;
+    if (cursor.position.x === rows[cursor.lineInText].cells.length) {
+        cursor.setScreenX = 0;
+        if (cursor.position.y != (numberOfVisibleRows-1)/2) {
+            cursor.setScreenY = cursor.lineInText + 1;
         }
-        hypotheticalCursorY++;
+        cursor.setLineInText = ++cursor.lineInText;
     }
 }
 
 function goBackOne() {
-    if (currentCell.x == 0) {
-        if (hypotheticalCursorY == 1 && hypotheticalCursorY == 1) {
-            hypotheticalCursorY--;
-            currentCell.setY = hypotheticalCursorY - 1;
-            currentCell.setX = rows[hypotheticalCursorY].cells.length-1;
-        } else if (hypotheticalCursorY > 0) {
-            hypotheticalCursorY--;
-            currentCell.setX = rows[hypotheticalCursorY].cells.length-1;
-            //////console.log("x " + currentCell.x + "");
+    if (cursor.position.x == 0) {
+        if (cursor.lineInText == 1 && cursor.lineInText == 1) {
+            cursor.setLineInText = --cursor.lineInText;
+            cursor.setScreenY = cursor.lineInText - 1;
+            cursor.setScreenX = rows[cursor.lineInText].cells.length-1;
+        } else if (cursor.lineInText > 0) {
+            cursor.setLineInText = --cursor.lineInText;
+            cursor.setScreenX = rows[cursor.lineInText].cells.length-1;
+            //////console.log("x " + cursor.position.x + "");
         } 
     } else {
-        currentCell.setX = currentCell.x-1;
+        cursor.setScreenX = cursor.position.x-1;
     }
 }
 //functions for readability
-function currentCellIsEmptySpace() {
-    return rows[hypotheticalCursorY].cells[currentCell.x].innerText == "" || rows[hypotheticalCursorY].cells[currentCell.x].innerText == "\n";
-}
-
 function moveCurrentWordBackward() {
     currentWord--;
     for (let i = numberOfVisibleRows-1; i >= 0; i--) {

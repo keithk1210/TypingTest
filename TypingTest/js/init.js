@@ -8,6 +8,7 @@ class DurationButton {
 var duration;
 var timer;
 var timeObj;
+var delay = 0;
 
 window.onload = function() {
 
@@ -69,7 +70,6 @@ window.onload = function() {
             prepareDisplayForTest();
             writeIntialWords();
             initializeDisplayForTest();
-            
             trim();
             timer.start();
             startGame();
@@ -80,6 +80,54 @@ window.onload = function() {
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
         timerDisplay.textContent = minutes + ':' + seconds;
+    }
+}
+
+window.addEventListener("mousemove", event => {
+    if (delay <= 0) {
+        console.log("x " + event.x + " y " + event.y);
+        delay = 100;
+    } else {
+        delay--;
+    }
+});
+
+function writeIntialWords() {
+    fixedText = text.replace("\n", " ").replace(/\s+/g, ' ');
+    words = fixedText.split(" ");
+    var done = false;
+    let currentWord = 0;
+    let y = 0;
+    while(currentWord < words.length) { //assigns what words go to each row
+        let newRow = createNewRow();
+        for (let x = 0; x < cellsPerRow; x++) {
+            if (currentWord < words.length && currentWord >= 0) {
+                if ((x + words[currentWord].length < cellsPerRow)) {
+                    newRow.addNewWord(words[currentWord]);
+                    x += words[currentWord].length;
+                    currentWord++;
+                }
+                
+            }
+        }
+        rows[y] = newRow;
+        y++;
+    }
+    for (let y = 0; y < rows.length; y++) { //turns  the words to cells and adds a space at the end
+        for (let x = 0; x < rows[y].words.length; x++) {
+            for (let i = 0; i < rows[y].words[x].length; i++) {
+                let newCharacter = document.createElement("span");
+                newCharacter.classList.add("character");
+                newCharacter.innerText = rows[y].words[x].charAt(i);
+                rows[y].addNewCell(newCharacter);
+                if (i >= rows[y].words[x].length-1) {
+                    let space = document.createElement("span");
+                    space.classList.add("character");
+                    space.innerText = " ";
+                    rows[y].addNewCell(space);
+                }
+            }
+        }
     }
 }
 

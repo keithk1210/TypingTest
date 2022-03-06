@@ -45,11 +45,13 @@ function prepareDisplayForTest() {
     input.classList.add("input");
     input.setAttribute("id","input");
     
-    cursor = document.createElement("div");
-    cursor.classList.add("cursor");
-    cursor.setAttribute("id","cursor");
+    cursorElement = document.createElement("div");
+    cursorElement.classList.add("cursor");
+    cursorElement.setAttribute("id","cursor");
+    cursor.assignElement = cursorElement;
 
-    input.appendChild(cursor);
+    input.appendChild(cursorElement);
+
     inputContainer.appendChild(input);
     document.getElementsByTagName("body")[0].appendChild(inputContainer);
 
@@ -70,31 +72,24 @@ function prepareDisplayForTest() {
     for (let i = 0; i < durationButtons.length; i++) {
         durationButtons[i].button.remove();
     }
-
-    
-
 }
 
 function initializeDisplayForTest() {
-    cursor.style.height = root.getPropertyValue("--cursor-height");
-    cursor.style.top = (input.offsetHeight/numberOfVisibleRows)/2 - (cursor.offsetHeight/2) + "px";
-    cursor.style.width = input.offsetWidth/cellsPerRow + "px";
+    cursor.initialize();
     for (let y = 0; y < numberOfVisibleRows; y++) {
-        makeVisibleRow(y,y);
+        makeVisibleRowAtPositionOnScreen(rows[y].row,y);
     }
     readjustHeight();
 }
 
-function addNewRow() {
-
-    //at this point, hypothetical cursor y == the row at numberOfVisibleRows-1
-    rows[hypotheticalCursorY-2].row.remove();
-    makeVisibleRow(hypotheticalCursorY+1,numberOfVisibleRows);
-    console.log("called");
+function addNewRow() { //TODO figure out why the animation does not occur when you back and then forward
+    //when this function executes, hypotheticalCursorY corresponds to the row at numberOfVisibleRows-1 (the last one)
+    rows[cursor.lineInText-2].row.remove();
+    makeVisibleRowAtPositionOnScreen(rows[cursor.lineInText+1].row,numberOfVisibleRows); //makes it past the screen so that it can be dragged up
     
     setTimeout(function() {
-        for (let i = hypotheticalCursorY-1; i < (hypotheticalCursorY - 1) + numberOfVisibleRows; i++) {
-            if (i == hypotheticalCursorY - 1 + numberOfVisibleRows-1 || hypotheticalCursorY == 2) {
+        for (let i = cursor.lineInText-1; i < (cursor.lineInText-1) + numberOfVisibleRows; i++) { //iterates through the previous row, the current row, and the row to be added
+            if (i == cursor.lineInText-1 + numberOfVisibleRows-1 || cursor.lineInText == 2) { //
                 rows[i].row.style.transform = "translateY(" + (-input.offsetHeight/numberOfVisibleRows) + "px)";
             } else {
                 let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("-") + 1,  rows[i].row.style.transform.indexOf("p"));
@@ -103,20 +98,18 @@ function addNewRow() {
             }
         }
     }, 100);
-   
     readjustHeight();
-
 }
 
 function goBackOneRow() {
-
-    rows[hypotheticalCursorY+2].row.remove();
-    rows[hypotheticalCursorY-1].row.style.top = -input.offsetHeight/numberOfVisibleRows * 2 + "px";
-    input.appendChild(rows[hypotheticalCursorY-1].row);
+    //when this function executes, the cursor will be at the first row
+    rows[cursor.lineInText+2].row.remove();
+    rows[cursor.lineInText-1].row.style.top = -input.offsetHeight/numberOfVisibleRows * 2 + "px";
+    input.appendChild(rows[cursor.lineInText-1].row);
     
     setTimeout(function() {
-        for (let i= hypotheticalCursorY-1; i < hypotheticalCursorY-1+numberOfVisibleRows; i++) {
-            if (i == hypotheticalCursorY-1) {
+        for (let i= cursor.lineInText-1; i < cursor.lineInText-1+numberOfVisibleRows; i++) {
+            if (i == cursor.lineInText-1) {
                 rows[i].row.style.transform = "translateY(" +  (input.offsetHeight/numberOfVisibleRows) + "px)";
             }
             let prevTranslateY = rows[i].row.style.transform.substring(rows[i].row.style.transform.indexOf("(") + 1,  rows[i].row.style.transform.indexOf("p"));
@@ -140,46 +133,10 @@ function createNewRow() {
     return rowObject;
 }
 
-function makeVisibleRow(index,positionOnScreen) {
-    for (let x = 0; x < rows[index].words.length; x++) {
-        for (let i = 0; i < rows[index].words[x].length; i++) {
-            let newCharacter = document.createElement("span");
-            newCharacter.classList.add("character");
-            newCharacter.innerText = rows[index].words[x].charAt(i);
-            rows[index].addNewCell(newCharacter);
-            if (i >= rows[index].words[x].length-1) {
-                let space = document.createElement("span");
-                space.classList.add("character");
-                space.innerText = " ";
-                rows[index].addNewCell(space);
-            }
-        }
-    }
-    rows[index].row.style.top = (input.offsetHeight/numberOfVisibleRows) * positionOnScreen + "px";
-    input.appendChild(rows[index].row);
-}
-
-function writeIntialWords() {
-    fixedText = text.replace("\n", " ").replace(/\s+/g, ' ');
-    words = fixedText.split(" ");
-    var done = false;
-    let currentWord = 0;
-    let y = 0;
-    while(currentWord < words.length) {   
-        let newRow = createNewRow();
-        for (let x = 0; x < cellsPerRow; x++) {
-            if (currentWord < words.length && currentWord >= 0) {
-                if ((x + words[currentWord].length < cellsPerRow)) {
-                    newRow.addNewWord(words[currentWord]);
-                    x += words[currentWord].length;
-                    currentWord++;
-                }
-                
-            }
-        }
-        rows[y] = newRow;
-        y++;
-    }
+function makeVisibleRowAtPositionOnScreen(row,positionOnScreen) {
+    console.log("makeVisibleRowAtPositionOnScreen: " + input.offsetHeight/numberOfVisibleRows * positionOnScreen);
+    row.style.top = (input.offsetHeight/numberOfVisibleRows) * positionOnScreen + "px";
+    input.appendChild(row);
 }
 
 function trim() {
@@ -210,25 +167,9 @@ function trim() {
     }  
 }
 
-/*
-function trimRowAtIndex(index) {
-        let x = cellsPerRow-1;
-        while(!(rows[index].cells[x-1].innerText) && x-1 > 0) {
-            //console.log("removed");
-            rows[index].cells[x].remove();
-            rows[index].cells.pop();
-            x--;
-        }
-    //readjusts width after trim
-        for (let x = 0 ; x < rows[index].cells.length; x++) {
-            rows[index].cells[x].style.width = input.offsetWidth/rows[index].cells.length + "px";
-        }
-}
-*/
-
 function readjustHeight() {
     console.log("called");
-    for (let y = hypotheticalCursorY; y < hypotheticalCursorY + numberOfVisibleRows; y++) {
+    for (let y = cursor.lineInText; y < cursor.lineInText + numberOfVisibleRows; y++) {
         for (let x = 0 ; x < rows[y].cells.length; x++) {
             rows[y].cells[x].style.lineHeight = rows[y].row.offsetHeight + "px";
         }
@@ -254,7 +195,7 @@ function displayOutput(wpm) {
     outputText.innerText = "WPM: " + wpm;
 }
 
-function updateAccuracy() {
+function calculateAccuracyAndUpdateDisplay() {
     let accuracy = (correctKeystrokes/numberOfKeystrokes * 100).toFixed(2);
     if (!isNaN(accuracy)) {
         durationMenu.children[accuracyDisplayIndex].innerText = accuracyDisplayInitialText + (correctKeystrokes/numberOfKeystrokes * 100).toFixed(1) + "%";
