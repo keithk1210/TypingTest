@@ -56,8 +56,8 @@ window.onload = function() {
 
     window.addEventListener("keydown", function (event) { 
         if (typeof timer == 'undefined') {
-            timer = new CountdownTimer(999);
-            timeObj = CountdownTimer.parse(999);
+            timer = new CountdownTimer(duration);
+            timeObj = CountdownTimer.parse(duration);
             format(timeObj.minutes, timeObj.seconds);
             timer.onTick(format).onTick(endTest);
         }

@@ -86,5 +86,6 @@ const texts = [
     new TextButton("Tool", "Fear Inoculum", fearInoculum),
     new TextButton("Red Hot Chili Peppers", "Can't Stop", cantStop),
     new TextButton("Led Zeppelin", "Stairway to Heaven", stairwayToHeaven),
-    new TextButton("The White Stripes", "Fell in Love With a Girl", fellInLoveWithAGirl)
+    new TextButton("The White Stripes", "Fell in Love With a Girl", fellInLoveWithAGirl),
+    new TextButton("Anonymous", "Lorem ipsum dolor", loremIpsumDolor)
 ]
