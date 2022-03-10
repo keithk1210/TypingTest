@@ -24,9 +24,28 @@
     src: url(fonts/Ubuntu-Regular.ttf);
 }
 
+.welcome-msg {
+    z-index: 100;
+    width: 200px;
+    height: 200px;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    position: absolute;
+    bottom: 0px;
+    background: var(--highlight-color);
+    display: flex;
+    flex-direction: column;
+}
+.welcome-msg span {
+    font-style: italic;
+    margin-top: 20px;
+}
+
 .main-content {
     margin: auto;
     width: 60vw;
+    position: relative;
 }
 .header h1 {
     text-align: center;
@@ -38,6 +57,7 @@
 }
 /*INPUT*/
 .input {
+    border-radius: 10px;
     width: 100%;
     position: relative;
     border: 1px solid black;
@@ -47,7 +67,6 @@
     align-items: flex-start;
     z-index: 0;
     transition: object-position 1s;
-    bottom: 30px;
 }
 .info-msg-container {
     text-align: center;
@@ -119,6 +138,8 @@
     margin: auto;
     margin-bottom: 100px;
     display: flex;
+    position: relative;
+    bottom: 35px;
 }
 .input-container-inactive {
     display: none;
@@ -228,5 +249,14 @@
     }
     to {
         opacity:1;
+    }
+}
+
+@keyframes fadeout { 
+    from {
+        opacity:1;
+    }
+    to {
+        opacity:0;
     }
 }

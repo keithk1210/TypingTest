@@ -33,17 +33,19 @@ function startGame() {
                 if (userKeyInput.length > 0) {
                     userKeyInput.pop();
                 }
-            } else if (event.key.length == 1 && ((event.key != " " && !cursor.isOnEmptySpace()) 
-            || (event.key == " " && cursor.isOnEmptySpace()))) {
+            } else if (event.key.length == 1 
+                /*&& ((event.key != " " && !cursor.isOnEmptySpace()) 
+            || (event.key == " " && cursor.isOnEmptySpace()))*/) {
                 userKeyInput.push(event.key);
-                if (event.key != " ") {
+                //if (event.key != " ") {
                     numberOfKeystrokes++;
-                }
+                    checkIfCorrect(event);
+                //}
                 if (cursor.position.x == rows[cursor.lineInText].cells.length-1 && cursor.lineInText > 0) {
                     advanceThroughSentence();
                     addNewRow();
                 } else {
-                    checkIfCorrect(event);
+                    
                     advanceThroughSentence();
                 }
             }
@@ -54,10 +56,10 @@ function startGame() {
 }
 
 function checkIfCorrect(event) {
-    if (rows[cursor.lineInText].cells[cursor.position.x].innerText == event.key.trim() && event.key != " ") {
+    if (rows[cursor.lineInText].cells[cursor.position.x].innerText == event.key.trim()) {
         rows[cursor.lineInText].cells[cursor.position.x].style.color = root.getPropertyValue("--highlight-color");
         correctKeystrokes++;
-    } else if ((event.key != "Shift" && event.key != "Backspace" && event.key != " ")) {
+    } else if ((event.key != "Shift" && event.key != "Backspace")) {
         rows[cursor.lineInText].cells[cursor.position.x].style.color = root.getPropertyValue("--incorrect-color");
     }
 }

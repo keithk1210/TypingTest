@@ -5,12 +5,17 @@ class DurationButton {
     }
 }
 
-var duration;
+var duration = 0;
 var timer;
 var timeObj;
 var delay = 0;
 
 window.onload = function() {
+
+    const welcomeMessage = document.getElementById("welcome-message");
+    welcomeMessage.style.bottom = mainContent.offsetHeight - welcomeMessage.offsetHeight/2 + "px";
+    welcomeMessage.style.marginLeft = mainContent.offsetWidth/2 - welcomeMessage.offsetWidth/2 + "px";
+
 
     for (let i = 0; i < 3; i ++) {
         let newButton = document.createElement("span");
@@ -43,6 +48,7 @@ window.onload = function() {
         newListItem.innerText = texts[i].author + " - " + texts[i].title;
         newListItem.onclick = function() {
             text = texts[i].content;
+            console.log(text);
             for (let i = 0; i < texts.length; i++) {
                 if (newListItem == texts[i].button) {
                     texts[i].button.classList.add("listbox-item-selected");
@@ -54,7 +60,16 @@ window.onload = function() {
         document.getElementById("texts-list").appendChild(newListItem);
     }
 
-    window.addEventListener("keydown", function (event) { 
+    window.addEventListener("keydown", function (event) { ` vbb `
+        if (document.body.contains(welcomeMessage)) {
+            if (event.key == "Enter") {
+                welcomeMessage.style.animation = "fadeout 1s";
+                this.setTimeout(function() {
+                    welcomeMessage.remove();
+                }, 900);
+            }
+            return;
+        }
         if (typeof timer == 'undefined') {
             timer = new CountdownTimer(duration);
             timeObj = CountdownTimer.parse(duration);
@@ -120,7 +135,7 @@ function writeIntialWords() {
                 newCharacter.classList.add("character");
                 newCharacter.innerText = rows[y].words[x].charAt(i);
                 rows[y].addNewCell(newCharacter);
-                if (i >= rows[y].words[x].length-1) {
+                if (i == rows[y].words[x].length-1) {
                     let space = document.createElement("span");
                     space.classList.add("character");
                     space.innerText = " ";
@@ -132,5 +147,5 @@ function writeIntialWords() {
 }
 
 function varsReady() {
-    return typeof timer != 'undefined' && typeof text != 'undefined';
+    return typeof timer != 'undefined' && text != "null";
 }

@@ -3,7 +3,7 @@ const outputContainer = document.querySelector(".output-container");
 
 var rows = [];
 var currentWord = 0;
-var text;
+var text = "null";
 var fixedText;
 var words;
 
@@ -26,7 +26,6 @@ class Row {
 
 function endTest() {
     if (this.expired()) {
-        //console.log("test ended");
         terminateDisplay();
         calculateWPM();
     }
