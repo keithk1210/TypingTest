@@ -8,6 +8,8 @@
     --cursor-height: 50px;
     --highlight-color: #6495ED;
     --selected-color: #ADD8E6;
+    --dark-body-color: rgb(83, 83, 83);
+    --green: #50C878;
 }
 
 * {
@@ -73,6 +75,7 @@
     width: 250px;
     padding: 10px 5px;
     margin: auto;
+    margin-top: 10px;
 }
 .info-msg {
     cursor: pointer;
@@ -217,13 +220,16 @@
 .output-container {
     width: 200px;
     margin: auto;
-    height: 0px;
+    height: fit-content;
     transition: height 1s;
     background: gray;
     display: flex;
     flex-direction: column;
     border-radius: 10px;
     align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    -webkit-animation: fadein 2s;
 }
 .output-header {
     background-color: var(--highlight-color);
@@ -231,6 +237,8 @@
     padding: 5px 10px;
     text-align: center;
     font-style: italic;
+    margin: 0;
+    margin-bottom: 5px;
 }
 .output-container > * {
     -webkit-animation: fadein 2s;
@@ -241,7 +249,22 @@
 }
 .output-container-active {
     display: flex;
-    height: 100px;
+}
+.accuracy-bar-container {
+    width: 180px;
+    height: 50px;
+    background-color: var(--dark-body-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+.accuracy-display-bar {
+    width: 0%;
+    height: 100%;
+    background-color: var(--green);
+    transition: width 1s;
+    border-radius: 10px;
 }
 @-webkit-keyframes fadein { 
     from {

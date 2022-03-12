@@ -12,11 +12,6 @@ var delay = 0;
 
 window.onload = function() {
 
-    const welcomeMessage = document.getElementById("welcome-message");
-    welcomeMessage.style.bottom = mainContent.offsetHeight - welcomeMessage.offsetHeight/2 + "px";
-    welcomeMessage.style.marginLeft = mainContent.offsetWidth/2 - welcomeMessage.offsetWidth/2 + "px";
-
-
     for (let i = 0; i < 3; i ++) {
         let newButton = document.createElement("span");
         let buttonDuration = (i+1) * 60;
@@ -61,18 +56,9 @@ window.onload = function() {
     }
 
     window.addEventListener("keydown", function (event) { ` vbb `
-        if (document.body.contains(welcomeMessage)) {
-            if (event.key == "Enter") {
-                welcomeMessage.style.animation = "fadeout 1s";
-                this.setTimeout(function() {
-                    welcomeMessage.remove();
-                }, 900);
-            }
-            return;
-        }
         if (typeof timer == 'undefined') {
             timer = new CountdownTimer(duration);
-            timeObj = CountdownTimer.parse(duration);
+            timeObj = CountdownTimer.parse(1);
             format(timeObj.minutes, timeObj.seconds);
             timer.onTick(format).onTick(endTest);
         }

@@ -178,24 +178,36 @@ function displayOutput(wpm) {
     let body = document.getElementsByTagName("body")[0];
     let outputContainer = document.createElement("div");
     outputContainer.classList.add("output-container");
-    let outputText = document.createElement("span");
+    let WPMOutputText = document.createElement("span");
+    let accuracyOutputText = document.createElement("span");
+    let accuracyInfoText = document.createElement("span");
     let header = document.createElement("h3");
     header.innerText = outputMsg;
     header.classList.add("output-header");
-    outputText.classList.add("output");
-    body.appendChild(outputContainer);
+    accuracyInfoText.style.fontStyle = "italic";
+    durationMenu.children[accuracyDisplayIndex].remove();
     setTimeout(function() {
         outputContainer.classList.add("output-container-active");
     }, 50);
     setTimeout(function() {
+        body.appendChild(outputContainer);
         outputContainer.appendChild(header);
-    outputContainer.appendChild(outputText);
+        outputContainer.appendChild(WPMOutputText);
+        outputContainer.appendChild(accuracyOutputText);
+        outputContainer.appendChild(accuracyInfoText)
     }, 500);
-    outputText.innerText = "WPM: " + wpm;
+    WPMOutputText.innerText = "WPM: " + wpm;
+    accuracyOutputText.innerText = "Your accuracy: (" + accuracy + "%)";
+    accuracyInfoText.innerText = "Out of the " + numberOfKeystrokes + " characters you typed, " + correctKeystrokes + " of them were correct.";
+
+}
+
+function displayAccuracyBar() {
+    let 
 }
 
 function calculateAccuracyAndUpdateDisplay() {
-    let accuracy = (correctKeystrokes/numberOfKeystrokes * 100).toFixed(2);
+    accuracy = (correctKeystrokes/numberOfKeystrokes * 100).toFixed(1);
     if (!isNaN(accuracy)) {
         durationMenu.children[accuracyDisplayIndex].innerText = accuracyDisplayInitialText + (correctKeystrokes/numberOfKeystrokes * 100).toFixed(1) + "%";
     }

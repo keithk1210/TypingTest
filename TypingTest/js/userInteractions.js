@@ -1,6 +1,7 @@
 var userKeyInput = [];
 var numberOfKeystrokes = 0;
 var correctKeystrokes = 0;
+var accuracy;
 
 window.addEventListener("keydown",function(event) {
     if(event.key.match(/\d/)) {

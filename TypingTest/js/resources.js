@@ -2,6 +2,7 @@
 const numberOfVisibleRows = 3;
 const cellsPerRow = 25;
 const accuracyDisplayIndex = 1;
+const accuracyBarIndex = 2;
 //html elements
 var input;
 const root = getComputedStyle(document.documentElement);
@@ -15,6 +16,7 @@ const listboxArea = document.querySelector(".listbox-area");
 //sentences
 const outputMsg = "Your results...";
 const accuracyDisplayInitialText = "Accuracy: ";
+var accuracy;
 
 
 class TextButton {
